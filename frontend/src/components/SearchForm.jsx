@@ -116,10 +116,12 @@ function initInputLightning(canvas, input) {
   input.addEventListener("focus",onFocus);
   input.addEventListener("blur",onBlur);
   input.addEventListener("input",onInput);
+  window.addEventListener("resize", syncSize);
   syncSize(); drawIdleGlow(); setTimeout(()=>strike(false),1200);
 
   return ()=>{
     clearInterval(idleIv); clearInterval(focusIv);
+    window.removeEventListener("resize", syncSize);
     input.removeEventListener("focus",onFocus);
     input.removeEventListener("blur",onBlur);
     input.removeEventListener("input",onInput);
@@ -233,7 +235,7 @@ export default function SearchForm({ onSearch, initialError = "" }) {
       {recent.length > 0 && (
         <div className="recent-wrap visible">
           <span className="recent-label">Recent:</span>
-          <div className="flex gap-2 flex-wrap">
+          <div className="recent-chips">
             {recent.map(u => (
               <button key={u} className="recent-chip" onClick={() => triggerChip(u)}>{u}</button>
             ))}

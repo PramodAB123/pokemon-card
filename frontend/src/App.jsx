@@ -79,7 +79,7 @@ function UserCardPage() {
 
 export default function App() {
   return (
-    <div className="scene" style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+    <div className="scene">
       <Background />
       <Routes>
         <Route path="/" element={<LandingPage />} />

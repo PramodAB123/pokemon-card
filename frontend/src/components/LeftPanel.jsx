@@ -40,12 +40,14 @@ export default function LeftPanel({ d }) {
         {metrics.map((m, i) => (
           <div className="sm-row" key={i}>
             <div className="sm-row-top">
-              <span className="sm-label">{m.label}</span>
-              <span className="sm-right">
+              <div className="sm-label-col">
+                <span className="sm-label">{m.label}</span>
                 <span className="sm-sub">{m.sub}</span>
+              </div>
+              <div className="sm-val-col">
                 <span className="sm-num">{fmt(m.val)}</span>
                 <span className="sm-unit">{m.unit}</span>
-              </span>
+              </div>
             </div>
             <div className="sm-bar-bg">
               <div className="sm-bar-fill" style={{ width: `${Math.round(m.pct)}%` }} />

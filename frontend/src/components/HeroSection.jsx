@@ -19,13 +19,12 @@ export default function HeroSection({ onSearch, initialError }) {
 
           <h1 className="hero-headline">
             <span className="headline-line1">GITHUB × POKÉMON</span>
-            CATCH YOUR<br />
+            <span className="headline-main">CATCH YOUR </span>
             <span className="headline-accent" data-text="CARD.">CARD.</span>
           </h1>
 
           <p className="hero-sub">
-            Your GitHub stats, transformed into a <span className="sub-highlight">holographic</span><br />
-            Pokémon trainer card. Gotta code &apos;em all.
+            Your GitHub stats, transformed into a <span className="sub-highlight">holographic</span> Pokémon trainer card. Gotta code &apos;em all.
           </p>
 
           <SearchForm onSearch={onSearch} initialError={initialError} />

@@ -92,9 +92,14 @@ function initLightning(canvas, grid) {
     }, 40);
   }
 
+  window.addEventListener("resize", syncSize);
   const t1 = setTimeout(strike, 800);
   const iv = setInterval(() => { if (Math.random() > 0.3) strike(); }, 2200);
-  return () => { clearTimeout(t1); clearInterval(iv); };
+  return () => {
+    window.removeEventListener("resize", syncSize);
+    clearTimeout(t1);
+    clearInterval(iv);
+  };
 }
 
 const CELLS = buildHeatmapCells();
