@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useCounter } from "../lib/useCounter.js";
 
 const RECENT_KEY = "gh-trainer-recent";
 function getRecent() {
@@ -132,6 +133,30 @@ export default function SearchForm({ onSearch, initialError = "" }) {
   const canvasRef = useRef(null);
   const inputRef  = useRef(null);
 
+  // Live card counter
+  const { count, loading: counterLoading } = useCounter();
+  const [displayCount, setDisplayCount] = useState(0);
+  const animRef = useRef(null);
+
+  // Animate the number up when count changes
+  useEffect(() => {
+    if (count === null) return;
+    const start = displayCount;
+    const end   = count;
+    if (start === end) return;
+    const duration = 800;
+    const startTime = performance.now();
+    cancelAnimationFrame(animRef.current);
+    function step(now) {
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+      setDisplayCount(Math.round(start + (end - start) * eased));
+      if (t < 1) animRef.current = requestAnimationFrame(step);
+    }
+    animRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [count]);
+
   useEffect(() => {
     setRecent(getRecent());
     const cleanup = initInputLightning(canvasRef.current, inputRef.current);
@@ -191,10 +216,14 @@ export default function SearchForm({ onSearch, initialError = "" }) {
         ))}
       </div>
 
-      {/* Counter bar */}
+      {/* Counter bar — live from /api/counter */}
       <div className="counter-bar">
-        <span className="counter-dot" />
-        <span className="counter-num">498,945</span>
+        <span className="counter-dot" style={{ opacity: counterLoading ? 0.4 : 1 }} />
+        <span className="counter-num">
+          {counterLoading && count === null
+            ? "…"
+            : displayCount.toLocaleString()}
+        </span>
         <span className="counter-label">cards generated</span>
         <span className="counter-sep">|</span>
         <a className="how-link" href="#how">how it works ↗</a>

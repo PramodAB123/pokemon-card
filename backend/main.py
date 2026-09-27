@@ -205,37 +205,51 @@ async def health_check():
     }
 
 @app.get("/api/counter")
-async def get_counter():
+async def get_counter(request: Request):
     count = 0
     if redis:
         try:
             val = redis.get("gtc:cards_generated")
-            if val is not None:
+            if val is None:
+                # Key doesn't exist yet — initialise it at 0
+                redis.setnx("gtc:cards_generated", 0)
+                count = 0
+            else:
                 count = int(val)
-        except:
-            pass
-    return {"count": count}
+        except Exception as e:
+            print(f"Counter Redis error: {e}")
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        content={"count": count},
+        headers={"Cache-Control": "no-store"}
+    )
 
 @app.get("/api/card")
 async def get_card(user: str, refresh: bool = False):
     if not re.match(r"^[a-zA-Z0-9-]{1,39}$", user):
         return JSONResponse(status_code=400, content={"error": "invalid_username", "message": "Invalid username"})
-        
+
     cache_key = f"gtc:card:{user}"
-    
+
+    # ── 1. Cache hit — still count it, every view = one generation ───────────
     if redis and not refresh:
         try:
             cached = redis.get(cache_key)
             if cached:
                 cached_data = json.loads(cached) if isinstance(cached, str) else cached
                 cached_data["cached"] = True
+                try:
+                    redis.incr("gtc:cards_generated")
+                except Exception as e:
+                    print(f"Counter incr (cache hit) error: {e}")
                 return cached_data
-        except:
-            pass
+        except Exception as e:
+            print(f"Cache read error: {e}")
 
+    # ── 2. Fresh fetch from GitHub ────────────────────────────────────────────
     token = get_best_token()
     data = await fetch_github_data(user, token)
-    
+
     if "error" in data:
         err_code = data["error"]
         if err_code == 404:
@@ -246,18 +260,22 @@ async def get_card(user: str, refresh: bool = False):
             return JSONResponse(status_code=500, content={"error": "github_unavailable", "message": data.get("msg", "Error")})
 
     update_token_budget(token, data.get("remaining", 0))
-
     card_data = compute_card_data(data)
-    
+
+    # ── 3. Save to cache + increment counter ──────────────────────────────────
     if redis:
         try:
             redis.setex(cache_key, 300, json.dumps(card_data))
+        except Exception as e:
+            print(f"Cache write error: {e}")
+        try:
             redis.incr("gtc:cards_generated")
-        except:
-            pass
-            
+        except Exception as e:
+            print(f"Counter incr (fresh) error: {e}")
+
     return card_data
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
