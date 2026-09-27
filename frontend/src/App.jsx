@@ -6,6 +6,7 @@ import LoadingSection from "./components/LoadingSection.jsx";
 import ResultSection from "./components/ResultSection.jsx";
 import { fetchGithubData } from "./lib/githubApi.js";
 import { computeCardData } from "./lib/computeCardData.js";
+import { incrementCounter } from "./lib/useCounter.js";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ function UserCardPage() {
       try {
         const { profile, repos, events, prCount, totalCommits } = await fetchGithubData(username);
         const data = computeCardData({ profile, repos, events, prCount, totalCommits });
+        // Increment card counter
+        incrementCounter().catch(() => {});
         // Small delay to let loader animate a bit
         await new Promise(r => setTimeout(r, 1200));
         if (active) {

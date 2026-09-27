@@ -218,9 +218,22 @@ async def get_counter(request: Request):
                 count = int(val)
         except Exception as e:
             print(f"Counter Redis error: {e}")
-    from fastapi.responses import JSONResponse
     return JSONResponse(
         content={"count": count},
+        headers={"Cache-Control": "no-store"}
+    )
+
+@app.post("/api/counter/increment")
+@app.post("/api/counter")
+async def increment_counter_endpoint(request: Request):
+    count = 1
+    if redis:
+        try:
+            count = int(redis.incr("gtc:cards_generated"))
+        except Exception as e:
+            print(f"Counter Redis increment error: {e}")
+    return JSONResponse(
+        content={"count": count, "success": True},
         headers={"Cache-Control": "no-store"}
     )
 
