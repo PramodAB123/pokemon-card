@@ -41,7 +41,6 @@ env/
 # Leftover / unused Vercel files
 # ──────────────────────────────────────────
 middleware.ts
-vercel.json
 requirements.txt
 
 # ──────────────────────────────────────────
