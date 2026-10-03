@@ -423,8 +423,8 @@ body {
 /* ── Hero Pokémon Group ───────────────────────────────────── */
 .hpg-wrap {
   position: relative;
-  width: 420px;
-  height: 420px;
+  width: 520px;
+  height: 520px;
 }
 .hpg-pokeball-ring {
   position: absolute;
@@ -456,45 +456,45 @@ body {
 .hpg-img { position: relative; z-index: 1; filter: drop-shadow(0 0 16px currentColor); }
 
 .hpg-main {
-  width: 200px; height: 200px;
+  width: 260px; height: 260px;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   animation: float 4s ease-in-out infinite;
   z-index: 3;
 }
-.hpg-main .hpg-img { width: 180px; }
+.hpg-main .hpg-img { width: 240px; }
 .hpg-fire .hpg-glow { background: rgba(255,87,34,0.7); }
 
 .hpg-s1 {
-  width: 100px; height: 100px;
-  top: 10%; left: 5%;
+  width: 130px; height: 130px;
+  top: 8%; left: 3%;
   animation: floatSmall 3s ease-in-out infinite;
 }
-.hpg-s1 .hpg-img { width: 85px; }
+.hpg-s1 .hpg-img { width: 115px; }
 .hpg-electric .hpg-glow { background: rgba(255,179,0,0.7); }
 
 .hpg-s2 {
-  width: 100px; height: 100px;
-  top: 10%; right: 5%;
+  width: 130px; height: 130px;
+  top: 8%; right: 3%;
   animation: floatSmall 3.5s ease-in-out infinite 0.5s;
 }
-.hpg-s2 .hpg-img { width: 85px; }
+.hpg-s2 .hpg-img { width: 115px; }
 .hpg-psychic .hpg-glow { background: rgba(233,30,140,0.6); }
 
 .hpg-s3 {
-  width: 95px; height: 95px;
-  bottom: 10%; left: 8%;
+  width: 125px; height: 125px;
+  bottom: 8%; left: 5%;
   animation: floatSmall 4s ease-in-out infinite 1s;
 }
-.hpg-s3 .hpg-img { width: 80px; }
+.hpg-s3 .hpg-img { width: 110px; }
 .hpg-water .hpg-glow { background: rgba(30,136,229,0.7); }
 
 .hpg-s4 {
-  width: 95px; height: 95px;
-  bottom: 10%; right: 8%;
+  width: 125px; height: 125px;
+  bottom: 8%; right: 5%;
   animation: floatSmall 3.2s ease-in-out infinite 1.5s;
 }
-.hpg-s4 .hpg-img { width: 80px; }
+.hpg-s4 .hpg-img { width: 110px; }
 .hpg-ghost .hpg-glow { background: rgba(92,53,177,0.7); }
 
 @keyframes float { 0%,100%{transform:translate(-50%,-50%) translateY(0)} 50%{transform:translate(-50%,-50%) translateY(-12px)} }
