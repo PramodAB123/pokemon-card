@@ -41,7 +41,7 @@ env/
 # Leftover / unused Vercel files
 # ──────────────────────────────────────────
 middleware.ts
-requirements.txt
+/requirements.txt
 
 # ──────────────────────────────────────────
 # Editor directories and files
