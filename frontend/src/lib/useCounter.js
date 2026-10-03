@@ -28,7 +28,7 @@ export async function incrementCounter() {
 
   // 2. Persist to backend / Redis if available
   try {
-    const res = await fetch("/api/counter/increment", {
+    const res = await fetch("/api/counter", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
