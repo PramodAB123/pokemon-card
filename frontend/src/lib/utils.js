@@ -7,7 +7,7 @@ export function fmt(n) {
   if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
-  return String(n);
+  return Number(n).toLocaleString();
 }
 
 export function timeAgo(isoDate) {
@@ -21,25 +21,47 @@ export function timeAgo(isoDate) {
 
 export function accountAge(createdAt) {
   const years = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24 * 365);
-  if (years < 1)  return "Rookie";
+  if (years < 1)  return "Cadet";
   if (years < 3)  return "Veteran";
-  return "Legend";
+  return "Deep Space Pioneer";
+}
+
+export function generateShipId(username = "", userId = 0) {
+  let hash = 0;
+  const str = String(username).toLowerCase() + String(userId || "");
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+  }
+  const positive = Math.abs(hash) % 10000;
+  return `#${String(positive).padStart(4, "0")}`;
+}
+
+export function getStreakLevel(recentCommits) {
+  if (recentCommits >= 30) return { label: "Hyperdrive Max ⚡⚡⚡", color: "#38BDF8" };
+  if (recentCommits >= 15) return { label: "Warp Speed 🛸🛸",   color: "#818CF8" };
+  if (recentCommits >= 5)  return { label: "Sub-light Pulse 🚀", color: "#34D399" };
+  if (recentCommits >= 1)  return { label: "Thrusters Engaged 🛰️", color: "#FBBF24" };
+  return { label: "Orbit Standby 📡", color: "#94A3B8" };
 }
 
 export function getTypeIcon(type) {
   const icons = {
-    fire:"🔥", water:"💧", grass:"🌿", electric:"⚡", psychic:"🔮",
-    ghost:"👻", dragon:"🐉", dark:"🌑", steel:"⚙️", fighting:"👊",
-    flying:"🌬️", poison:"☠️", ground:"🌍", rock:"🪨", ice:"❄️",
-    fairy:"✨", normal:"⭐", colorless:"⭐"
+    solaris: "☀️",
+    nebula: "🌌",
+    quantum: "⚛️",
+    titanium: "🛡️",
+    nova: "💫",
+    crimson: "🔴",
+    forge: "🔥",
+    prism: "💎",
+    ember: "✨",
+    astral: "🔮",
+    comet: "☄️",
+    aurora: "🌈",
+    pulsar: "🏮",
+    void: "🕳️",
+    spectrum: "🎨",
+    cosmos: "🪐",
   };
-  return icons[type] || "⭐";
-}
-
-export function getStreakLevel(recentCommits) {
-  if (recentCommits >= 30) return { label: "Legendary 🔥🔥🔥", color: "#FF6B35" };
-  if (recentCommits >= 15) return { label: "On Fire 🔥🔥",    color: "#FDD835" };
-  if (recentCommits >= 5)  return { label: "Active 🔥",         color: "#4CAF50" };
-  if (recentCommits >= 1)  return { label: "Getting Started ⚡", color: "#64B5F6" };
-  return { label: "New Trainer 🌱", color: "#A5D6A7" };
+  return icons[String(type).toLowerCase()] || "🪐";
 }

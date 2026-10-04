@@ -5,33 +5,33 @@ const logPct = (val, max) => Math.min(100, Math.round((Math.log10(val + 1) / Mat
 const linPct = (val, max) => Math.min(100, Math.round((val / max) * 100));
 
 export default function LeftPanel({ d }) {
-  const topLangName = d.langPercents[0]?.lang || "—";
+  const topLangName = d.langPercents[0]?.lang || "Uncharted";
   const numLangs    = Object.keys(d.langCounts || {}).length;
   const activeDays  = Math.min(365, d.recentCommits > 0 ? Math.round(d.recentCommits * 8.5) : 0);
 
   const metrics = [
-    { label: "Total Commits",  sub: "all-time pushes",        val: d.totalCommits,   unit: "commits",   pct: logPct(d.totalCommits, 5000) },
-    { label: "Repositories",   sub: "public projects",        val: d.publicRepos,    unit: "repos",     pct: logPct(d.publicRepos, 200) },
-    { label: "Languages",      sub: "top: " + topLangName,   val: numLangs,          unit: "langs",     pct: linPct(numLangs, 10) },
-    { label: "Stars Earned",   sub: "across all repos",       val: d.totalStars,     unit: "stars",     pct: logPct(d.totalStars, 5000) },
-    { label: "Followers",      sub: "community reach",        val: d.followers,      unit: "followers", pct: logPct(d.followers, 10000) },
-    { label: "Pull Requests",  sub: "merged & open PRs",      val: d.totalPRs,       unit: "PRs",       pct: logPct(d.totalPRs, 200) },
-    { label: "Account Age",    sub: "since " + d.joinedYear, val: d.accountAgeYears, unit: d.accountAgeYears === 1 ? "yr" : "yrs", pct: linPct(d.accountAgeYears, 12) },
-    { label: "Active Days",    sub: "est. from activity",     val: activeDays,       unit: "days",      pct: linPct(activeDays, 365) },
+    { label: "Warp Commits",   sub: "all-time pushes",       val: d.totalCommits,   unit: "commits",   pct: logPct(d.totalCommits, 5000) },
+    { label: "Starbases",      sub: "public repositories",   val: d.publicRepos,    unit: "repos",     pct: logPct(d.publicRepos, 200) },
+    { label: "Star Systems",   sub: "primary: " + topLangName, val: numLangs,        unit: "systems",   pct: linPct(numLangs, 10) },
+    { label: "Starlight Stars",sub: "stellar beacons",       val: d.totalStars,     unit: "stars",     pct: logPct(d.totalStars, 5000) },
+    { label: "Fleet Followers",sub: "expedition network",    val: d.followers,      unit: "crew",      pct: logPct(d.followers, 10000) },
+    { label: "Deploy Sorties", sub: "merged pull requests",  val: d.totalPRs,       unit: "PRs",       pct: logPct(d.totalPRs, 200) },
+    { label: "Fleet Service",  sub: "since " + d.joinedYear, val: d.accountAgeYears, unit: d.accountAgeYears === 1 ? "yr" : "yrs", pct: linPct(d.accountAgeYears, 12) },
+    { label: "Orbital Patrol", sub: "subspace telemetry",    val: activeDays,       unit: "days",      pct: linPct(activeDays, 365) },
   ];
 
   return (
     <div className="sm-card">
       <div className="sm-header">
         <div className="sm-accent-line" />
-        <span className="sm-title">Scouting Metrics</span>
+        <span className="sm-title">Fleet Telemetry</span>
       </div>
 
       <div className="sm-trainer-info">
         <img className="sm-avatar" src={d.avatarUrl} alt={d.username} loading="lazy" />
         <div className="sm-trainer-text">
           <span className="sm-trainer-name">{d.displayName || d.username}</span>
-          <span className="sm-trainer-handle">@{d.username}</span>
+          <span className="sm-trainer-handle">@{d.username} · {d.shipId}</span>
           {d.bio && <span className="sm-trainer-bio">{d.bio}</span>}
         </div>
       </div>
@@ -50,7 +50,13 @@ export default function LeftPanel({ d }) {
               </div>
             </div>
             <div className="sm-bar-bg">
-              <div className="sm-bar-fill" style={{ width: `${Math.round(m.pct)}%` }} />
+              <div
+                className="sm-bar-fill"
+                style={{
+                  width: `${Math.round(m.pct)}%`,
+                  background: `linear-gradient(90deg, #38BDF8, #818CF8)`,
+                }}
+              />
             </div>
           </div>
         ))}

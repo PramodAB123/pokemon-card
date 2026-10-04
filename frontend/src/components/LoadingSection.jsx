@@ -1,169 +1,180 @@
-import React, { useEffect, useRef } from "react";
-
-function drawBall(ballCtx, ballFlashRef) {
-  const S = 140;
-  ballCtx.clearRect(0, 0, S, S);
-  const cx = S/2, cy = S/2, r = S/2-4;
-  const ballFlash = ballFlashRef.current;
-
-  ballCtx.save();
-  ballCtx.translate(cx, cy);
-
-  const flashBlue = Math.min(ballFlash, 0.55);
-
-  // Top hemisphere
-  ballCtx.beginPath();
-  ballCtx.arc(0,0,r,Math.PI,0); ballCtx.lineTo(r,0); ballCtx.lineTo(-r,0); ballCtx.closePath();
-  const topGrad = ballCtx.createRadialGradient(-r*0.3,-r*0.35,r*0.05,0,0,r);
-  topGrad.addColorStop(0,   `rgba(255,${80+Math.round(flashBlue*100)},${80+Math.round(flashBlue*160)},1)`);
-  topGrad.addColorStop(0.6, `rgba(${200-Math.round(flashBlue*80)},30,${30+Math.round(flashBlue*180)},1)`);
-  topGrad.addColorStop(1,   `rgba(${100-Math.round(flashBlue*40)},10,${10+Math.round(flashBlue*100)},1)`);
-  ballCtx.fillStyle = topGrad; ballCtx.fill();
-
-  // Bottom hemisphere
-  ballCtx.beginPath();
-  ballCtx.arc(0,0,r,0,Math.PI); ballCtx.lineTo(-r,0); ballCtx.closePath();
-  const botGrad = ballCtx.createRadialGradient(r*0.2,r*0.4,r*0.05,0,0,r);
-  botGrad.addColorStop(0,   `rgba(${220+Math.round(flashBlue*35)},${220+Math.round(flashBlue*35)},${220+Math.round(flashBlue*35)},1)`);
-  botGrad.addColorStop(0.5, `rgba(${140+Math.round(flashBlue*80)},${140+Math.round(flashBlue*80)},${180+Math.round(flashBlue*75)},1)`);
-  botGrad.addColorStop(1,   `rgba(${50+Math.round(flashBlue*30)},${50+Math.round(flashBlue*30)},${70+Math.round(flashBlue*60)},1)`);
-  ballCtx.fillStyle = botGrad; ballCtx.fill();
-
-  // Center band
-  ballCtx.beginPath(); ballCtx.rect(-r,-7,r*2,14);
-  ballCtx.fillStyle=`rgba(${10+Math.round(flashBlue*40)},${10+Math.round(flashBlue*40)},${20+Math.round(flashBlue*80)},1)`;
-  ballCtx.fill();
-
-  ballCtx.strokeStyle=`rgba(${30+Math.round(flashBlue*100)},${30+Math.round(flashBlue*80)},${30+Math.round(flashBlue*180)},0.6)`;
-  ballCtx.lineWidth=1;
-  ballCtx.beginPath(); ballCtx.moveTo(-r,-7); ballCtx.lineTo(r,-7);
-  ballCtx.moveTo(-r,7);  ballCtx.lineTo(r,7); ballCtx.stroke();
-
-  // Center button
-  const btnR=13;
-  ballCtx.beginPath(); ballCtx.arc(0,0,btnR,0,Math.PI*2);
-  ballCtx.fillStyle=`rgba(${15+Math.round(flashBlue*40)},${15+Math.round(flashBlue*40)},${30+Math.round(flashBlue*100)},1)`;
-  ballCtx.fill();
-  ballCtx.strokeStyle=`rgba(${80+Math.round(flashBlue*100)},${80+Math.round(flashBlue*80)},${100+Math.round(flashBlue*155)},0.9)`;
-  ballCtx.lineWidth=2.5; ballCtx.stroke();
-  const dotGrad=ballCtx.createRadialGradient(-3,-3,1,0,0,btnR);
-  dotGrad.addColorStop(0,`rgba(${180+Math.round(flashBlue*75)},${180+Math.round(flashBlue*75)},255,${0.7+ballFlash*0.3})`);
-  dotGrad.addColorStop(1,"rgba(0,0,0,0)");
-  ballCtx.beginPath(); ballCtx.arc(0,0,btnR,0,Math.PI*2); ballCtx.fillStyle=dotGrad; ballCtx.fill();
-
-  // Shine
-  ballCtx.beginPath(); ballCtx.ellipse(-r*0.25,-r*0.4,r*0.32,r*0.18,-0.3,0,Math.PI*2);
-  ballCtx.fillStyle="rgba(255,255,255,0.18)"; ballCtx.fill();
-
-  // Outer ring
-  ballCtx.beginPath(); ballCtx.arc(0,0,r,0,Math.PI*2);
-  ballCtx.strokeStyle=`rgba(${20+Math.round(flashBlue*60)},${20+Math.round(flashBlue*40)},${40+Math.round(flashBlue*180)},0.85)`;
-  ballCtx.lineWidth=3; ballCtx.stroke();
-
-  if(ballFlash>0){
-    const fg=ballCtx.createRadialGradient(0,0,0,0,0,r);
-    fg.addColorStop(0,`rgba(64,192,255,${ballFlash*0.55})`); fg.addColorStop(1,"transparent");
-    ballCtx.beginPath(); ballCtx.arc(0,0,r,0,Math.PI*2); ballCtx.fillStyle=fg; ballCtx.fill();
-    ballFlashRef.current=Math.max(0,ballFlash-0.04);
-  }
-  ballCtx.restore();
-}
+import React, { useEffect, useRef, useState } from "react";
 
 export default function LoadingSection({ active }) {
-  const ltCanvasRef   = useRef(null);
-  const ballCanvasRef = useRef(null);
-  const rafRef        = useRef(null);
-  const intervalRef   = useRef(null);
-  const ballFlash     = useRef(0);
-  const activeBolts   = useRef([]);
-  const strikeOpacity = useRef(0);
-  const arcAngle      = useRef(0);
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
 
   const steps = [
-    "Fetching trainer profile…",
-    "Calculating base stats…",
-    "Assigning Pokémon type…",
-    "Printing your card…",
+    "Initializing subspace sensors…",
+    "Scanning GitHub orbital telemetry…",
+    "Aligning star system coordinates…",
+    "Forging Explorer trading card…",
   ];
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [doneSteps,  setDoneSteps]  = React.useState([]);
+  const [activeStep, setActiveStep] = useState(0);
+  const [doneSteps, setDoneSteps] = useState([]);
 
   useEffect(() => {
-    if (!active) { stop(); return; }
-    setActiveStep(0); setDoneSteps([]);
-    start();
+    if (!active) return;
+    setActiveStep(0);
+    setDoneSteps([]);
+
     const timers = [
-      setTimeout(() => { setDoneSteps([0]); setActiveStep(1); }, 1200),
-      setTimeout(() => { setDoneSteps([0,1]); setActiveStep(2); }, 2400),
-      setTimeout(() => { setDoneSteps([0,1,2]); setActiveStep(3); }, 3600),
+      setTimeout(() => {
+        setDoneSteps([0]);
+        setActiveStep(1);
+      }, 700),
+      setTimeout(() => {
+        setDoneSteps([0, 1]);
+        setActiveStep(2);
+      }, 1400),
+      setTimeout(() => {
+        setDoneSteps([0, 1, 2]);
+        setActiveStep(3);
+      }, 2100),
     ];
-    return () => { timers.forEach(clearTimeout); stop(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return () => timers.forEach(clearTimeout);
   }, [active]);
 
-  function boltL(ltCtx,x1,y1,x2,y2,depth,alpha){
-    if(depth===0) return;
-    const mx=(x1+x2)/2+(Math.random()-0.5)*30*depth;
-    const my=(y1+y2)/2+(Math.random()-0.5)*18*depth;
-    ltCtx.beginPath(); ltCtx.moveTo(x1,y1); ltCtx.lineTo(mx,my); ltCtx.lineTo(x2,y2);
-    ltCtx.strokeStyle=`rgba(80,180,255,${alpha})`; ltCtx.lineWidth=depth*1.2;
-    ltCtx.shadowColor="rgba(64,192,255,1)"; ltCtx.shadowBlur=14*depth; ltCtx.stroke();
-    if(depth>1&&Math.random()>0.4) boltL(ltCtx,mx,my,mx+(Math.random()-0.5)*55,my+(Math.random()-0.5)*38,depth-1,alpha*0.42);
-    boltL(ltCtx,x1,y1,mx,my,depth-1,alpha*0.75);
-    boltL(ltCtx,mx,my,x2,y2,depth-1,alpha*0.75);
-  }
+  useEffect(() => {
+    if (!active) {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      return;
+    }
 
-  function edgePoint(w,h){
-    const side=Math.floor(Math.random()*4);
-    if(side===0) return{x:Math.random()*w,y:0};
-    if(side===1) return{x:w,y:Math.random()*h};
-    if(side===2) return{x:Math.random()*w,y:h};
-    return{x:0,y:Math.random()*h};
-  }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
 
-  function strike(){
-    ballFlash.current=1.0;
-  }
+    let width = (canvas.width = canvas.offsetWidth || 380);
+    let height = (canvas.height = canvas.offsetHeight || 300);
 
-  function renderLoop(){
-    const ballCanvas=ballCanvasRef.current, ltCanvas=ltCanvasRef.current;
-    if(!ballCanvas||!ltCanvas) return;
+    const onResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.offsetWidth || 380;
+      height = canvas.height = canvas.offsetHeight || 300;
+    };
+    window.addEventListener("resize", onResize);
 
-    drawBall(ballCanvas.getContext("2d"), ballFlash);
+    // Initialize 120 warp stars
+    const NUM_STARS = 130;
+    const stars = [];
+    for (let i = 0; i < NUM_STARS; i++) {
+      stars.push({
+        x: (Math.random() - 0.5) * width * 2,
+        y: (Math.random() - 0.5) * height * 2,
+        z: Math.random() * width,
+        pz: 0,
+        color: Math.random() > 0.3 ? "#38BDF8" : Math.random() > 0.5 ? "#818CF8" : "#F472B6",
+      });
+      stars[i].pz = stars[i].z;
+    }
 
-    const w=ltCanvas.offsetWidth||360, h=ltCanvas.offsetHeight||280;
-    ltCanvas.width=w; ltCanvas.height=h;
-    const ltCtx=ltCanvas.getContext("2d");
-    ltCtx.clearRect(0,0,w,h);
+    let ringPulse = 0;
 
-    // Thunder effect removed
-    rafRef.current=requestAnimationFrame(renderLoop);
-  }
+    function render() {
+      ctx.fillStyle = "rgba(7, 8, 15, 0.28)";
+      ctx.fillRect(0, 0, width, height);
 
-  function start(){
-    if(!rafRef.current) renderLoop();
-    if(!intervalRef.current){ strike(); intervalRef.current=setInterval(strike,900); }
-  }
-  function stop(){
-    clearInterval(intervalRef.current); intervalRef.current=null;
-    if(rafRef.current){ cancelAnimationFrame(rafRef.current); rafRef.current=null; }
-    const ltCanvas=ltCanvasRef.current, ballCanvas=ballCanvasRef.current;
-    if(ltCanvas){ const c=ltCanvas.getContext("2d"); c.clearRect(0,0,ltCanvas.width,ltCanvas.height); }
-    if(ballCanvas){ const c=ballCanvas.getContext("2d"); c.clearRect(0,0,140,140); }
-  }
+      const cx = width / 2;
+      const cy = height / 2;
+
+      // Draw Warp Tunnel Rings
+      ringPulse = (ringPulse + 0.04) % (Math.PI * 2);
+      for (let r = 1; r <= 3; r++) {
+        const radius = ((ringPulse * 28 * r) % 130) + 15;
+        const alpha = Math.max(0, 1 - radius / 140) * 0.45;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([8, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Draw Warp Speed Star Streaks
+      for (let i = 0; i < NUM_STARS; i++) {
+        const star = stars[i];
+        star.pz = star.z;
+        star.z -= 14; // Warp acceleration speed
+
+        if (star.z <= 0) {
+          star.z = width;
+          star.pz = width;
+          star.x = (Math.random() - 0.5) * width * 2;
+          star.y = (Math.random() - 0.5) * height * 2;
+        }
+
+        const k = 180 / star.z;
+        const px = star.x * k + cx;
+        const py = star.y * k + cy;
+
+        const pk = 180 / star.pz;
+        const prevX = star.x * pk + cx;
+        const prevY = star.y * pk + cy;
+
+        if (px >= 0 && px <= width && py >= 0 && py <= height) {
+          const depthAlpha = Math.min(1, Math.max(0.1, 1 - star.z / width));
+          ctx.beginPath();
+          ctx.moveTo(prevX, prevY);
+          ctx.lineTo(px, py);
+          ctx.strokeStyle = star.color;
+          ctx.globalAlpha = depthAlpha;
+          ctx.lineWidth = Math.min(3, Math.max(1, (1 - star.z / width) * 3));
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // Center Warp Singularity / Core
+      const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 26);
+      coreGrad.addColorStop(0, "rgba(224, 242, 254, 0.95)");
+      coreGrad.addColorStop(0.3, "rgba(56, 189, 248, 0.8)");
+      coreGrad.addColorStop(0.8, "rgba(99, 102, 241, 0.3)");
+      coreGrad.addColorStop(1, "transparent");
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+      ctx.fillStyle = coreGrad;
+      ctx.fill();
+
+      // Crosshair Target Reticle
+      ctx.strokeStyle = "rgba(125, 211, 252, 0.7)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx - 36, cy);
+      ctx.lineTo(cx - 10, cy);
+      ctx.moveTo(cx + 10, cy);
+      ctx.lineTo(cx + 36, cy);
+      ctx.moveTo(cx, cy - 36);
+      ctx.lineTo(cx, cy - 10);
+      ctx.moveTo(cx, cy + 10);
+      ctx.lineTo(cx, cy + 36);
+      ctx.stroke();
+
+      animRef.current = requestAnimationFrame(render);
+    }
+
+    render();
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, [active]);
 
   return (
     <section
       className="loading-section relative z-10 w-full flex flex-col items-center justify-center min-h-screen"
-      style={{ display: active ? 'flex' : 'none' }}
+      style={{ display: active ? "flex" : "none" }}
       id="loadingSection"
     >
-      <div className="loader-stage">
-        <canvas className="loader-lightning-canvas" ref={ltCanvasRef} aria-hidden="true" />
-        <div className="loader-ball-wrap">
-          <canvas className="loader-ball-canvas" ref={ballCanvasRef} width={140} height={140} />
-          <div className="loader-ball-ring" />
-          <div className="loader-ball-ring-inner" />
+      <div className="loader-stage warp-loader-stage">
+        <canvas className="warp-canvas" ref={canvasRef} aria-hidden="true" />
+        <div className="warp-hud-overlay">
+          <div className="warp-reticle-ring" />
+          <div className="warp-status-text">ENGAGING WARP</div>
         </div>
       </div>
 

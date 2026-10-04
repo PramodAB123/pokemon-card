@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="GitHub Pokemon Card API")
+app = FastAPI(title="GitStar Explorer API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -144,6 +144,47 @@ async def fetch_github_data(username, token):
             "remaining": remaining
         }
 
+STAR_SYSTEMS = {
+    "JavaScript": {"name": "Solaris", "color": "#F59E0B", "vuln": "Void"},
+    "Python": {"name": "Nebula", "color": "#8B5CF6", "vuln": "Quantum"},
+    "TypeScript": {"name": "Quantum", "color": "#3B82F6", "vuln": "Ember"},
+    "Rust": {"name": "Titanium", "color": "#94A3B8", "vuln": "Pulsar"},
+    "Go": {"name": "Nova", "color": "#06B6D4", "vuln": "Nebula"},
+    "Java": {"name": "Crimson", "color": "#DC2626", "vuln": "Comet"},
+    "C++": {"name": "Forge", "color": "#F97316", "vuln": "Prism"},
+    "C#": {"name": "Prism", "color": "#10B981", "vuln": "Forge"},
+    "Ruby": {"name": "Ember", "color": "#F43F5E", "vuln": "Nova"},
+    "PHP": {"name": "Astral", "color": "#6366F1", "vuln": "Titanium"},
+    "Swift": {"name": "Comet", "color": "#FB923C", "vuln": "Quantum"},
+    "Kotlin": {"name": "Aurora", "color": "#A855F7", "vuln": "Void"},
+    "Scala": {"name": "Pulsar", "color": "#BE123C", "vuln": "Solaris"},
+    "Shell": {"name": "Void", "color": "#64748B", "vuln": "Spectrum"},
+    "HTML": {"name": "Spectrum", "color": "#EC4899", "vuln": "Astral"},
+    "CSS": {"name": "Spectrum", "color": "#EC4899", "vuln": "Astral"},
+}
+
+def get_fleet_rank(level):
+    if level >= 81:
+        return {"title": "Fleet Admiral", "badge": "★★"}
+    if level >= 51:
+        return {"title": "Admiral", "badge": "★"}
+    if level >= 26:
+        return {"title": "Commander", "badge": "━━━"}
+    if level >= 11:
+        return {"title": "Lieutenant", "badge": "━━"}
+    return {"title": "Cadet", "badge": "━"}
+
+def get_clearance_tier(score):
+    if score < 20:
+        return "standard"
+    if score < 50:
+        return "classified"
+    if score < 90:
+        return "top-secret"
+    if score < 140:
+        return "ultra"
+    return "black-ops"
+
 def compute_card_data(data):
     profile = data["profile"]
     repos = data["repos"]
@@ -151,47 +192,80 @@ def compute_card_data(data):
     
     total_stars = sum(r.get("stargazers_count", 0) for r in repos)
     total_forks = sum(r.get("forks_count", 0) for r in repos)
+    followers = profile.get("followers", 0)
+    public_repos = profile.get("public_repos", 0)
+    commits = data.get("commits", 0)
+    prs = data.get("prs", 0)
     
     langs = {}
     for r in repos:
         lang = r.get("language")
         if lang:
             langs[lang] = langs.get(lang, 0) + 1
-    top_lang = max(langs.items(), key=lambda x: x[1])[0] if langs else "Unknown"
+    top_lang = max(langs.items(), key=lambda x: x[1])[0] if langs else "Cosmos"
     
-    xp = (data["commits"] * 10) + (data["prs"] * 50) + (total_stars * 100)
-    level = int(xp ** 0.5 / 5) + 1
-    hp = min(999, level * 10 + 50)
+    system_info = STAR_SYSTEMS.get(top_lang, {"name": "Cosmos", "color": "#6366F1", "vuln": "Void"})
     
-    poke_id = (int(hashlib.md5(profile.get("login", "").encode()).hexdigest(), 16) % 151) + 1
+    # Mission Points (MP)
+    mp = (commits * 10) + (prs * 50) + (total_stars * 100) + (followers * 5) + (total_forks * 10)
     
+    # Level (quadratic threshold curve)
+    level = 1
+    while level < 99 and (level * level + 4) <= max(commits, 1):
+        level += 1
+        
+    shield = min(999, max(50, 50 + level * 10 + min(80, public_repos * 4) + int(min(60, len(repos) * 2))))
+    
+    login = profile.get("login", "")
+    ship_num = int(hashlib.md5(login.encode()).hexdigest(), 16) % 10000
+    ship_id = f"#{ship_num:04d}"
+    
+    rank_info = get_fleet_rank(level)
+    clearance = get_clearance_tier((total_stars * 0.5) + (commits * 0.1) + (prs * 2) + public_repos)
+    
+    recent_commits = len([e for e in events if e.get("type") == "PushEvent"])
+
     return {
-        "username": profile.get("login"),
-        "name": profile.get("name") or profile.get("login"),
+        "username": login,
+        "name": profile.get("name") or login,
         "avatar_url": profile.get("avatar_url"),
-        "type": "normal",
-        "rarity": "rare",
-        "hp": hp,
+        "star_system": system_info["name"],
+        "star_system_color": system_info["color"],
+        "vulnerability": system_info["vuln"],
+        "shield": shield,
+        "shield_energy": shield,
         "level": level,
-        "xp": xp,
-        "xp_progress": xp % 100,
-        "xp_to_next": 100 - (xp % 100),
-        "total_commits": data["commits"],
-        "recent_commits": len([e for e in events if e.get("type") == "PushEvent"]),
+        "mission_points": mp,
+        "mp": mp,
+        "fleet_rank": rank_info["title"],
+        "fleet_badge": rank_info["badge"],
+        "clearance_level": clearance,
+        "ship_id": ship_id,
+        "abilities": [
+            {"icon": "⚡", "name": "Warp Commit", "cost": f"{commits:,} commits"},
+            {"icon": "🛸", "name": "Orbital Deploy", "cost": f"{public_repos:,} repos"},
+            {"icon": "📡", "name": "Signal Broadcast", "cost": f"{len(langs)} languages"},
+            {"icon": "🔭", "name": "Deep Scan", "cost": "orbital telemetry"}
+        ],
+        "total_commits": commits,
+        "recent_commits": recent_commits,
         "total_stars": total_stars,
         "total_forks": total_forks,
-        "total_prs": data["prs"],
-        "public_repos": profile.get("public_repos", 0),
-        "followers": profile.get("followers", 0),
+        "total_prs": prs,
+        "public_repos": public_repos,
+        "followers": followers,
         "top_language": top_lang,
         "language_breakdown": langs,
-        "streak": { "label": "Active", "color": "#FF6B35" },
-        "stage": "Basic",
-        "account_age_years": 1,
-        "pokemon_id": poke_id,
         "top_repos": [r.get("name") for r in sorted(repos, key=lambda x: x.get("stargazers_count", 0), reverse=True)[:3]],
         "cached": False,
-        "cache_age_seconds": 0
+        "cache_age_seconds": 0,
+        # Backward compatibility
+        "type": system_info["name"].lower(),
+        "rarity": clearance,
+        "hp": shield,
+        "xp": mp,
+        "xp_progress": mp % 100,
+        "xp_to_next": 100 - (mp % 100),
     }
 
 @app.get("/api/health")

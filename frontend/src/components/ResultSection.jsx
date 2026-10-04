@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import TrainerCard from "./TrainerCard.jsx";
+import ExplorerCard from "./ExplorerCard.jsx";
 import LeftPanel from "./LeftPanel.jsx";
 import RightPanel from "./RightPanel.jsx";
 import ReposGrid from "./ReposGrid.jsx";
@@ -11,8 +11,8 @@ export default function ResultSection({ d, onTryAnother }) {
     const username = d.username;
     const url = `${location.origin}/${encodeURIComponent(username)}`;
     navigator.clipboard.writeText(url).then(
-      () => showToast("Link copied to clipboard! ✓"),
-      () => showToast("Share: " + url)
+      () => showToast("Subspace coordinates copied to clipboard! ✓"),
+      () => showToast("Coordinates: " + url)
     );
   }
 
@@ -28,36 +28,40 @@ export default function ResultSection({ d, onTryAnother }) {
     <section className="result-section relative z-10 w-full flex flex-col items-center" id="resultSection">
 
       <div className="result-layout">
-        {/* Left panel */}
+        {/* Left Telemetry Panel */}
         <div className="side-panel left-panel" id="leftPanel">
           <LeftPanel d={d} />
         </div>
 
-        {/* Center: card + actions */}
+        {/* Center: Trading Card + Warp Actions */}
         <div className="card-column">
           <div
             className="card-wrap"
             ref={cardWrapRef}
-            onMouseEnter={e => e.currentTarget.querySelector(".github-card")?.classList.add("card-hovered")}
-            onMouseLeave={e => e.currentTarget.querySelector(".github-card")?.classList.remove("card-hovered")}
+            onMouseEnter={(e) => e.currentTarget.querySelector(".explorer-card")?.classList.add("card-hovered")}
+            onMouseLeave={(e) => e.currentTarget.querySelector(".explorer-card")?.classList.remove("card-hovered")}
           >
-            <TrainerCard d={d} />
+            <ExplorerCard d={d} />
           </div>
           <div className="card-actions">
-            <button className="action-btn secondary" id="tryAnotherBtn" onClick={onTryAnother}>← Try Another</button>
-            <button className="action-btn primary" id="shareBtn" onClick={handleShare}>Share ✦</button>
+            <button className="action-btn secondary" id="tryAnotherBtn" onClick={onTryAnother}>
+              ← Scout Another
+            </button>
+            <button className="action-btn primary" id="shareBtn" onClick={handleShare}>
+              Transmit Coordinates ✦
+            </button>
           </div>
         </div>
 
-        {/* Right panel */}
+        {/* Right Dossier Panel */}
         <div className="side-panel right-panel" id="rightPanel">
           <RightPanel d={d} />
         </div>
       </div>
 
-      {/* Repos below */}
+      {/* Orbital Starbases Repos Grid */}
       <div className="repos-section">
-        <div className="repos-section-title">Top Repositories</div>
+        <div className="repos-section-title">Orbital Starbases & Repositories</div>
         <ReposGrid d={d} />
       </div>
 

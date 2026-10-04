@@ -38,22 +38,22 @@ function UserCardPage() {
         const data = computeCardData({ profile, repos, events, prCount, totalCommits });
         // Increment card counter
         incrementCounter().catch(() => {});
-        // Small delay to let loader animate a bit
-        await new Promise(r => setTimeout(r, 1200));
+        // Warp animation delay
+        await new Promise((r) => setTimeout(r, 1400));
         if (active) {
           setCardData(data);
           setView("result");
         }
       } catch (err) {
         if (!active) return;
-        
-        let errorMsg = "Failed to fetch trainer data. Check your connection and retry.";
+
+        let errorMsg = "Subspace connection lost. Unable to retrieve explorer telemetry.";
         if (err.status === 404) {
-          errorMsg = `Trainer "@${username}" not found. Check the username and try again.`;
+          errorMsg = `Explorer callsign "@${username}" not located in stellar registry.`;
         } else if (err.status === 403) {
-          errorMsg = "GitHub API rate limit reached. Please wait a minute and try again.";
+          errorMsg = "GitHub API rate limit reached. Subspace sensors cooling down — retry shortly.";
         }
-        
+
         navigate("/", { state: { error: errorMsg }, replace: true });
       }
     }
@@ -88,7 +88,9 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/:username" element={<UserCardPage />} />
       </Routes>
-      <div className="toast" id="toast">Link copied to clipboard!</div>
+      <div className="toast" id="toast">
+        Subspace coordinates copied to clipboard!
+      </div>
     </div>
   );
 }

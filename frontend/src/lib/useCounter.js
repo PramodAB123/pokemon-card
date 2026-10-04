@@ -40,7 +40,7 @@ export async function incrementCounter() {
         return finalCount;
       }
     }
-  } catch (_) {
+  } catch {
     // Backend offline / static mode: local increment already applied
   }
   return nextLocal;
