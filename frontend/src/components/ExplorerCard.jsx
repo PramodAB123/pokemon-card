@@ -119,12 +119,9 @@ export default function ExplorerCard({ d }) {
         {/* ── 2. Telemetry Deck / Avatar HUD ── */}
         <div className="exp-art-bay">
           <div className="exp-nebula-wash" />
-          <div className="exp-radar-sweep" aria-hidden="true" />
 
-          {/* Avatar Lens Capsule */}
+          {/* Avatar Lens Container (Single Clean Ring) */}
           <div className="exp-capsule-wrap">
-            <div className="exp-capsule-ring-outer" />
-            <div className="exp-capsule-ring-inner" />
             <div className="exp-avatar-lens">
               <img className="exp-avatar" src={d.avatarUrl} alt={d.username} loading="lazy" />
               <div className="exp-lens-glare" />
