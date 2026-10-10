@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import Background from "./components/Background.jsx";
 import HeroSection from "./components/HeroSection.jsx";
 import LoadingSection from "./components/LoadingSection.jsx";
@@ -108,6 +109,7 @@ export default function App() {
       <div className="toast" id="toast">
         Subspace coordinates copied to clipboard!
       </div>
+      <Analytics />
     </div>
   );
 }
