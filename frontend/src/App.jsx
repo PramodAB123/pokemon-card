@@ -14,6 +14,9 @@ function LandingPage() {
   const errorMsg = location.state?.error || "";
 
   function handleSearch(username) {
+    if (username) {
+      incrementCounter(username).catch(() => {});
+    }
     navigate(`/${username}`);
   }
 
