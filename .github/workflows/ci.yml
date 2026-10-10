@@ -32,3 +32,6 @@ jobs:
       
     - name: Build
       run: npm run build
+
+    - name: Run Telemetry & API Test Suite
+      run: node ../tests/run_all.mjs https://pokitrainer.vercel.app
