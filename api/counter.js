@@ -53,28 +53,40 @@ export default async function handler(req, res) {
     let isNew = false;
 
     if (rawUsername && typeof rawUsername === "string") {
-      const cleanUser = rawUsername.trim().toLowerCase();
-      // SADD returns 1 if newly added, 0 if already existed in set
-      const saddResult = await fetchRedis("SADD", "gtc:unique_users", cleanUser);
-      isNew = saddResult === 1;
+      const cleanUser = rawUsername.trim().toLowerCase().replace(/^@/, "");
+      if (cleanUser) {
+        // SADD returns 1 if newly added, 0 if already existed in set
+        const saddResult = await fetchRedis("SADD", "gtc:unique_users", cleanUser);
+        isNew = saddResult === 1;
+      }
     }
 
     // Count is ALWAYS strictly derived from unique_users set size
-    const count = (await fetchRedis("SCARD", "gtc:unique_users")) ?? 0;
+    const count = Number((await fetchRedis("SCARD", "gtc:unique_users")) ?? 0);
+    const uniqueUsers = (await fetchRedis("SMEMBERS", "gtc:unique_users")) ?? [];
+
     // Keep cards_generated string in sync
     await fetchRedis("SET", "gtc:cards_generated", String(count));
 
     return res.status(200).json({
-      count: Number(count),
+      count,
+      cards_generated: count,
+      unique_users: Array.isArray(uniqueUsers) ? uniqueUsers : [],
       isNew,
       success: true,
     });
   }
 
-  // GET request: exact count of unique users
+  // GET request: exact count and list of unique users
   let count = await fetchRedis("SCARD", "gtc:unique_users");
   if (count === null || count === undefined) {
     count = await fetchRedis("GET", "gtc:cards_generated");
   }
-  return res.status(200).json({ count: Number(count || 0) });
+  const uniqueUsers = (await fetchRedis("SMEMBERS", "gtc:unique_users")) ?? [];
+
+  return res.status(200).json({
+    count: Number(count || 0),
+    cards_generated: Number(count || 0),
+    unique_users: Array.isArray(uniqueUsers) ? uniqueUsers : [],
+  });
 }
