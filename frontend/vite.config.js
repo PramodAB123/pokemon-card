@@ -69,7 +69,7 @@ function devApiMiddleware() {
               let username = ''
               try {
                 const parsed = JSON.parse(bodyStr)
-                username = parsed.username ? String(parsed.username).trim().toLowerCase() : ''
+                username = parsed.username ? String(parsed.username).trim().toLowerCase().replace(/^@/, '') : ''
               } catch {}
 
               let isNew = false
@@ -85,15 +85,20 @@ function devApiMiddleware() {
 
               // Count is strictly derived from unique_users size
               let count = await fetchRedisDirect('SCARD', 'gtc:unique_users')
+              let uniqueUsers = await fetchRedisDirect('SMEMBERS', 'gtc:unique_users')
+
               if (count !== null && count !== undefined) {
                 await fetchRedisDirect('SET', 'gtc:cards_generated', String(count))
               } else {
                 count = fallbackDevUsers.size
+                uniqueUsers = Array.from(fallbackDevUsers)
               }
 
               res.end(
                 JSON.stringify({
                   count: Number(count || 0),
+                  cards_generated: Number(count || 0),
+                  unique_users: Array.isArray(uniqueUsers) ? uniqueUsers : [],
                   isNew,
                   success: true,
                 })
@@ -105,13 +110,25 @@ function devApiMiddleware() {
           // GET /api/counter
           ;(async () => {
             let count = await fetchRedisDirect('SCARD', 'gtc:unique_users')
+            let uniqueUsers = await fetchRedisDirect('SMEMBERS', 'gtc:unique_users')
+
             if (count === null || count === undefined) {
               count = await fetchRedisDirect('GET', 'gtc:cards_generated')
             }
             if (count === null || count === undefined) {
               count = fallbackDevUsers.size
             }
-            res.end(JSON.stringify({ count: Number(count || 0) }))
+            if (!uniqueUsers) {
+              uniqueUsers = Array.from(fallbackDevUsers)
+            }
+
+            res.end(
+              JSON.stringify({
+                count: Number(count || 0),
+                cards_generated: Number(count || 0),
+                unique_users: Array.isArray(uniqueUsers) ? uniqueUsers : [],
+              })
+            )
           })()
           return
         }

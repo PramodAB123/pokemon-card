@@ -16,10 +16,32 @@ function getLocalCount() {
   }
 }
 
-function setLocalCount(val) {
+const LOCAL_USERS_KEY = "gtc_unique_users_list";
+
+function getLocalUsers() {
+  try {
+    const val = localStorage.getItem(LOCAL_USERS_KEY);
+    return val ? JSON.parse(val) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setLocalUsers(users) {
+  try {
+    if (Array.isArray(users)) {
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+    }
+  } catch {}
+}
+
+export function setLocalCounterState(val, users) {
   try {
     localStorage.setItem(LOCAL_COUNTER_KEY, String(val));
-    window.dispatchEvent(new CustomEvent(COUNTER_EVENT, { detail: { count: val } }));
+    if (users) setLocalUsers(users);
+    window.dispatchEvent(
+      new CustomEvent(COUNTER_EVENT, { detail: { count: val, uniqueUsers: users || [] } })
+    );
   } catch {}
 }
 
@@ -28,7 +50,7 @@ function setLocalCount(val) {
  * Redis is the single source of truth for uniqueness (via atomic SADD).
  */
 export async function incrementCounter(username) {
-  const cleanUser = username ? String(username).trim().toLowerCase() : "";
+  const cleanUser = username ? String(username).trim().toLowerCase().replace(/^@/, "") : "";
   if (!cleanUser) return getLocalCount();
 
   // Prevent immediate duplicate call during React StrictMode double-mount
@@ -47,17 +69,19 @@ export async function incrementCounter(username) {
     if (res.ok) {
       const data = await res.json();
       if (typeof data.count === "number") {
-        setLocalCount(data.count);
-        // Also do a fresh GET to confirm and re-cache (handles any lag)
+        setLocalCounterState(data.count, data.unique_users);
+        // Also do a quick follow-up GET to confirm and sync across any latency
         setTimeout(async () => {
           try {
             const confirm = await fetch("/api/counter");
             if (confirm.ok) {
               const cd = await confirm.json();
-              if (typeof cd.count === "number") setLocalCount(cd.count);
+              if (typeof cd.count === "number") {
+                setLocalCounterState(cd.count, cd.unique_users);
+              }
             }
           } catch {}
-        }, 800);
+        }, 600);
         return data.count;
       }
     }
@@ -70,12 +94,13 @@ export async function incrementCounter(username) {
 
 /**
  * Fetches /api/counter and polls every 10s.
- * Returns { count, loading, error, refresh }
+ * Returns { count, uniqueUsers, loading, error, refresh }
  */
 export function useCounter() {
-  const [count, setCount]     = useState(getLocalCount());
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [count, setCount]             = useState(getLocalCount());
+  const [uniqueUsers, setUniqueUsers] = useState(getLocalUsers());
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
   const timerRef = useRef(null);
 
   async function fetchCount() {
@@ -84,12 +109,15 @@ export function useCounter() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       const serverCount = typeof json.count === "number" ? json.count : 0;
+      const serverUsers = Array.isArray(json.unique_users) ? json.unique_users : [];
       setCount(serverCount);
-      setLocalCount(serverCount);
+      setUniqueUsers(serverUsers);
+      setLocalCounterState(serverCount, serverUsers);
       setError(null);
     } catch (err) {
       setError(err.message);
       setCount(getLocalCount());
+      setUniqueUsers(getLocalUsers());
     } finally {
       setLoading(false);
     }
@@ -102,17 +130,26 @@ export function useCounter() {
     const handleUpdate = (e) => {
       if (e.detail && typeof e.detail.count === "number") {
         setCount(e.detail.count);
+        if (Array.isArray(e.detail.uniqueUsers)) {
+          setUniqueUsers(e.detail.uniqueUsers);
+        }
       }
     };
     window.addEventListener(COUNTER_EVENT, handleUpdate);
-    window.addEventListener("storage", () => setCount(getLocalCount()));
+    window.addEventListener("storage", () => {
+      setCount(getLocalCount());
+      setUniqueUsers(getLocalUsers());
+    });
 
     return () => {
       clearInterval(timerRef.current);
       window.removeEventListener(COUNTER_EVENT, handleUpdate);
-      window.removeEventListener("storage", () => setCount(getLocalCount()));
+      window.removeEventListener("storage", () => {
+        setCount(getLocalCount());
+        setUniqueUsers(getLocalUsers());
+      });
     };
   }, []);
 
-  return { count, loading, error, refresh: fetchCount };
+  return { count, uniqueUsers, loading, error, refresh: fetchCount };
 }
