@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 const POLL_INTERVAL = 10_000; // 10 seconds
 const LOCAL_COUNTER_KEY = "gtc_cards_generated_count";
+const LOCAL_USERS_KEY = "gtc_counted_usernames";
 const COUNTER_EVENT = "gtc_counter_updated";
 
 function getLocalCount() {
@@ -20,17 +21,50 @@ function setLocalCount(val) {
   } catch {}
 }
 
-export async function incrementCounter() {
-  // 1. Instantly update local count and broadcast event to all open UI listeners
+function getCountedUsers() {
+  try {
+    const raw = localStorage.getItem(LOCAL_USERS_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function markUserCounted(username) {
+  try {
+    const set = getCountedUsers();
+    set.add(username.toLowerCase());
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify([...set]));
+  } catch {}
+}
+
+/**
+ * Increments the card counter if this username has not been generated yet.
+ * Prevents duplicate increment for repeated searches or React StrictMode double mounts.
+ */
+export async function incrementCounter(username) {
+  const cleanUser = username ? String(username).trim().toLowerCase() : "";
+  const counted = getCountedUsers();
+
+  // If this username was already recorded locally, skip incrementing
+  if (cleanUser && counted.has(cleanUser)) {
+    return getLocalCount();
+  }
+
+  if (cleanUser) {
+    markUserCounted(cleanUser);
+  }
+
   const currentLocal = getLocalCount();
   const nextLocal = currentLocal + 1;
   setLocalCount(nextLocal);
 
-  // 2. Persist to backend / Redis if available
+  // Persist to Upstash Redis if available
   try {
     const res = await fetch("/api/counter", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: cleanUser }),
     });
     if (res.ok) {
       const data = await res.json();
@@ -41,7 +75,7 @@ export async function incrementCounter() {
       }
     }
   } catch {
-    // Backend offline / static mode: local increment already applied
+    // Offline / fallback mode
   }
   return nextLocal;
 }

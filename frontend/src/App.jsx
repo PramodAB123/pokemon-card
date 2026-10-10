@@ -36,8 +36,8 @@ function UserCardPage() {
       try {
         const { profile, repos, events, prCount, totalCommits } = await fetchGithubData(username);
         const data = computeCardData({ profile, repos, events, prCount, totalCommits });
-        // Increment card counter
-        incrementCounter().catch(() => {});
+        // Increment card counter for unique username
+        incrementCounter(username).catch(() => {});
         // Warp animation delay
         await new Promise((r) => setTimeout(r, 1400));
         if (active) {
