@@ -1641,3 +1641,213 @@ body {
     max-width: 100%;
   }
 }
+
+/* ══════════════════════════════════════════════════════════
+   404 NOT FOUND / DEEP SPACE ANOMALY
+   ══════════════════════════════════════════════════════════ */
+.not-found-section {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.not-found-card {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  background: rgba(13, 17, 30, 0.78);
+  border: 1px solid rgba(244, 63, 94, 0.28);
+  border-radius: 24px;
+  padding: 36px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 32px rgba(244, 63, 94, 0.12);
+  backdrop-filter: blur(16px);
+  animation: notFoundFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notFoundFadeIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.not-found-radar-wrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.not-found-radar-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.radar-core-icon {
+  font-size: 32px;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 14px rgba(244, 63, 94, 0.8));
+  animation: floatUfo 3s ease-in-out infinite;
+}
+
+@keyframes floatUfo {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(4deg); }
+}
+
+.not-found-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.badge-ping {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f43f5e;
+  box-shadow: 0 0 10px #f43f5e;
+  animation: radarPing 1.6s ease-in-out infinite;
+}
+
+@keyframes radarPing {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.75); }
+}
+
+.badge-label {
+  font-size: 11px;
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fb7185;
+}
+
+.not-found-headline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.not-found-glitch {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 9vw, 68px);
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  color: #fff1f2;
+  text-shadow: 0 0 24px rgba(244, 63, 94, 0.6);
+}
+
+.not-found-subhead {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.not-found-dossier {
+  width: 100%;
+  background: rgba(10, 14, 26, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  margin-bottom: 22px;
+  box-sizing: border-box;
+}
+
+.dossier-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dossier-key {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.7);
+  min-width: 130px;
+}
+
+.dossier-val {
+  color: #e2e8f0;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.text-rose {
+  color: #fb7185 !important;
+  font-weight: 700;
+}
+
+.text-amber {
+  color: #fcd34d !important;
+  font-family: 'Orbitron', monospace;
+}
+
+.not-found-scout-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.scout-chip-label {
+  font-size: 11.5px;
+  color: rgba(148, 163, 184, 0.7);
+  font-family: 'Orbitron', monospace;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.not-found-chip {
+  padding: 5px 12px;
+  font-size: 11.5px;
+}
+
+.not-found-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.not-found-primary-btn {
+  padding: 12px 28px;
+  font-size: 12px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 320px;
+}

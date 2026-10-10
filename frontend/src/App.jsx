@@ -4,6 +4,7 @@ import Background from "./components/Background.jsx";
 import HeroSection from "./components/HeroSection.jsx";
 import LoadingSection from "./components/LoadingSection.jsx";
 import ResultSection from "./components/ResultSection.jsx";
+import NotFoundSection from "./components/NotFoundSection.jsx";
 import { fetchGithubData } from "./lib/githubApi.js";
 import { computeCardData } from "./lib/computeCardData.js";
 import { incrementCounter } from "./lib/useCounter.js";
@@ -51,10 +52,14 @@ function UserCardPage() {
       } catch (err) {
         if (!active) return;
 
-        let errorMsg = "Subspace connection lost. Unable to retrieve explorer telemetry.";
+        // Custom 404 handler for missing GitHub explorers
         if (err.status === 404) {
-          errorMsg = `Explorer callsign "@${username}" not located in stellar registry.`;
-        } else if (err.status === 403) {
+          setView("not-found");
+          return;
+        }
+
+        let errorMsg = "Subspace connection lost. Unable to retrieve explorer telemetry.";
+        if (err.status === 403) {
           errorMsg = "GitHub API rate limit reached. Subspace sensors cooling down — retry shortly.";
         }
 
@@ -77,11 +82,20 @@ function UserCardPage() {
     return <LoadingSection active={true} />;
   }
 
+  if (view === "not-found") {
+    return <NotFoundSection username={username} onTryAnother={handleTryAnother} />;
+  }
+
   if (view === "result" && cardData) {
     return <ResultSection d={cardData} onTryAnother={handleTryAnother} />;
   }
 
   return null;
+}
+
+function GenericNotFoundPage() {
+  const navigate = useNavigate();
+  return <NotFoundSection onTryAnother={() => navigate("/")} />;
 }
 
 export default function App() {
@@ -91,6 +105,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/:username" element={<UserCardPage />} />
+        <Route path="*" element={<GenericNotFoundPage />} />
       </Routes>
       <div className="toast" id="toast">
         Subspace coordinates copied to clipboard!
