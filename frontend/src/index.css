@@ -107,6 +107,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: hidden;
 }
 
 .hidden { display: none !important; }
@@ -1745,16 +1746,26 @@ body {
     padding: 16px 12px;
     gap: 14px;
     max-width: 100%;
+    overflow-x: hidden;
   }
   .card-column {
     width: 100%;
     box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  .card-wrap {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .explorer-card {
+    max-width: min(336px, 100%);
   }
   .card-actions {
-    max-width: 100%;
+    max-width: min(336px, 100%);
     flex-direction: column;
     gap: 8px;
     width: 100%;
+    box-sizing: border-box;
   }
   .action-btn {
     width: 100%;
@@ -1763,6 +1774,7 @@ body {
     flex: unset;
     white-space: normal;
     text-align: center;
+    box-sizing: border-box;
   }
 
   /* Repos */

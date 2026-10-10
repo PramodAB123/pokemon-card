@@ -15,9 +15,7 @@ function LandingPage() {
   const errorMsg = location.state?.error || "";
 
   function handleSearch(username) {
-    if (username) {
-      incrementCounter(username).catch(() => {});
-    }
+    // Do NOT increment here — only count after card is verified (UserCardPage)
     navigate(`/${username}`);
   }
 

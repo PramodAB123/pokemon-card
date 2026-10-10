@@ -36,7 +36,7 @@ export async function incrementCounter(username) {
     return getLocalCount();
   }
   inFlightUsers.add(cleanUser);
-  setTimeout(() => inFlightUsers.delete(cleanUser), 4000);
+  setTimeout(() => inFlightUsers.delete(cleanUser), 1500);
 
   try {
     const res = await fetch("/api/counter", {
@@ -48,6 +48,16 @@ export async function incrementCounter(username) {
       const data = await res.json();
       if (typeof data.count === "number") {
         setLocalCount(data.count);
+        // Also do a fresh GET to confirm and re-cache (handles any lag)
+        setTimeout(async () => {
+          try {
+            const confirm = await fetch("/api/counter");
+            if (confirm.ok) {
+              const cd = await confirm.json();
+              if (typeof cd.count === "number") setLocalCount(cd.count);
+            }
+          } catch {}
+        }, 800);
         return data.count;
       }
     }
