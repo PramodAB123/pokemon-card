@@ -18,7 +18,10 @@ function getUpstashCredentials() {
       const urlMatch = content.match(/(?:KV_REST_API_URL|UPSTASH_REDIS_REST_URL)=["']?([^"'\r\n]+)/)
       const tokenMatch = content.match(/(?:KV_REST_API_TOKEN|UPSTASH_REDIS_REST_TOKEN)=["']?([^"'\r\n]+)/)
       if (urlMatch && tokenMatch) {
-        return { url: urlMatch[1].trim(), token: tokenMatch[1].trim() }
+        return {
+          url: urlMatch[1].trim().replace(/\/+$/, ''),
+          token: tokenMatch[1].trim(),
+        }
       }
     }
   }
@@ -29,14 +32,22 @@ async function fetchRedisDirect(command, ...args) {
   const creds = getUpstashCredentials()
   if (!creds) return null
   try {
-    const endpoint = `${creds.url}/${[command, ...args].join('/')}`
-    const res = await fetch(endpoint, {
-      headers: { Authorization: `Bearer ${creds.token}` },
+    const res = await fetch(creds.url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${creds.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([command.toUpperCase(), ...args]),
     })
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.error('Vite dev Upstash error:', res.status, await res.text())
+      return null
+    }
     const json = await res.json()
     return json.result
   } catch (err) {
+    console.error('Vite dev Upstash network error:', err)
     return null
   }
 }
@@ -45,7 +56,7 @@ function devApiMiddleware() {
   return {
     name: 'dev-api-fallback',
     configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
+      server.middlewares.use((req, res, next) => {
         if (req.url && req.url.startsWith('/api/counter')) {
           res.setHeader('Content-Type', 'application/json')
           res.setHeader('Access-Control-Allow-Origin', '*')
@@ -63,13 +74,11 @@ function devApiMiddleware() {
               } catch {}
 
               let isNew = 1
-              // Attempt Upstash Redis SADD for unique username tracking
               if (username) {
-                const redisSadd = await fetchRedisDirect('sadd', 'gtc:unique_users', username)
-                if (redisSadd !== null) {
-                  isNew = redisSadd === 1 ? 1 : 0
+                const saddRes = await fetchRedisDirect('SADD', 'gtc:unique_users', username)
+                if (saddRes !== null && saddRes !== undefined) {
+                  isNew = saddRes === 1 ? 1 : 0
                 } else {
-                  // Local memory fallback
                   isNew = devSeenUsers.has(username) ? 0 : 1
                   devSeenUsers.add(username)
                 }
@@ -77,16 +86,20 @@ function devApiMiddleware() {
 
               let count = null
               if (isNew === 1) {
-                count = await fetchRedisDirect('incr', 'gtc:cards_generated')
+                count = await fetchRedisDirect('INCR', 'gtc:cards_generated')
                 if (count === null) {
                   fallbackDevCounter += 1
                   count = fallbackDevCounter
                 }
               } else {
-                count = await fetchRedisDirect('get', 'gtc:cards_generated')
+                count = await fetchRedisDirect('GET', 'gtc:cards_generated')
                 if (count === null) {
                   count = fallbackDevCounter
                 }
+              }
+
+              if (count === null || count === undefined) {
+                count = (await fetchRedisDirect('SCARD', 'gtc:unique_users')) || 0
               }
 
               res.end(
@@ -101,15 +114,16 @@ function devApiMiddleware() {
           }
 
           // GET /api/counter
-          let count = await fetchRedisDirect('get', 'gtc:cards_generated')
-          if (count === null) {
-            count = await fetchRedisDirect('scard', 'gtc:unique_users')
-          }
-          if (count === null) {
-            count = fallbackDevCounter
-          }
-
-          res.end(JSON.stringify({ count: Number(count || 0) }))
+          ;(async () => {
+            let count = await fetchRedisDirect('GET', 'gtc:cards_generated')
+            if (count === null || count === undefined) {
+              count = await fetchRedisDirect('SCARD', 'gtc:unique_users')
+            }
+            if (count === null || count === undefined) {
+              count = fallbackDevCounter
+            }
+            res.end(JSON.stringify({ count: Number(count || 0) }))
+          })()
           return
         }
         next()

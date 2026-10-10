@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from "react";
 
 const POLL_INTERVAL = 10_000; // 10 seconds
 const LOCAL_COUNTER_KEY = "gtc_cards_generated_count";
-const LOCAL_USERS_KEY = "gtc_counted_usernames";
 const COUNTER_EVENT = "gtc_counter_updated";
+
+// In-flight guard to prevent React 18 StrictMode dev double-fire in the same component render
+const inFlightUsers = new Set();
 
 function getLocalCount() {
   try {
@@ -21,45 +23,21 @@ function setLocalCount(val) {
   } catch {}
 }
 
-function getCountedUsers() {
-  try {
-    const raw = localStorage.getItem(LOCAL_USERS_KEY);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
-function markUserCounted(username) {
-  try {
-    const set = getCountedUsers();
-    set.add(username.toLowerCase());
-    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify([...set]));
-  } catch {}
-}
-
 /**
- * Increments the card counter if this username has not been generated yet.
- * Prevents duplicate increment for repeated searches or React StrictMode double mounts.
+ * Sends username to /api/counter.
+ * Redis is the single source of truth for uniqueness (via atomic SADD).
  */
 export async function incrementCounter(username) {
   const cleanUser = username ? String(username).trim().toLowerCase() : "";
-  const counted = getCountedUsers();
+  if (!cleanUser) return getLocalCount();
 
-  // If this username was already recorded locally, skip incrementing
-  if (cleanUser && counted.has(cleanUser)) {
+  // Prevent immediate duplicate call during React StrictMode double-mount
+  if (inFlightUsers.has(cleanUser)) {
     return getLocalCount();
   }
+  inFlightUsers.add(cleanUser);
+  setTimeout(() => inFlightUsers.delete(cleanUser), 4000);
 
-  if (cleanUser) {
-    markUserCounted(cleanUser);
-  }
-
-  const currentLocal = getLocalCount();
-  const nextLocal = currentLocal + 1;
-  setLocalCount(nextLocal);
-
-  // Persist to Upstash Redis if available
   try {
     const res = await fetch("/api/counter", {
       method: "POST",
@@ -69,15 +47,15 @@ export async function incrementCounter(username) {
     if (res.ok) {
       const data = await res.json();
       if (typeof data.count === "number") {
-        const finalCount = Math.max(data.count, nextLocal);
-        setLocalCount(finalCount);
-        return finalCount;
+        setLocalCount(data.count);
+        return data.count;
       }
     }
-  } catch {
-    // Offline / fallback mode
+  } catch (err) {
+    console.warn("Counter sync:", err);
   }
-  return nextLocal;
+
+  return getLocalCount();
 }
 
 /**
@@ -96,10 +74,8 @@ export function useCounter() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       const serverCount = typeof json.count === "number" ? json.count : 0;
-      const localCount = getLocalCount();
-      const finalCount = Math.max(serverCount, localCount);
-      setCount(finalCount);
-      setLocalCount(finalCount);
+      setCount(serverCount);
+      setLocalCount(serverCount);
       setError(null);
     } catch (err) {
       setError(err.message);

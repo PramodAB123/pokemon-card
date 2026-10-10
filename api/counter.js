@@ -3,7 +3,7 @@
 async function getRedisConfig() {
   const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  if (url && token) return { url, token };
+  if (url && token) return { url: url.replace(/\/+$/, ""), token };
   return null;
 }
 
@@ -11,10 +11,19 @@ async function fetchRedis(command, ...args) {
   const cfg = await getRedisConfig();
   if (!cfg) return null;
   try {
-    const res = await fetch(`${cfg.url}/${[command, ...args].join("/")}`, {
-      headers: { Authorization: `Bearer ${cfg.token}` }
+    // Official Upstash REST POST format: robust against special chars, slashes, and casing
+    const res = await fetch(cfg.url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cfg.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify([command.toUpperCase(), ...args]),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error("Upstash HTTP error:", res.status, await res.text());
+      return null;
+    }
     const json = await res.json();
     return json.result;
   } catch (e) {
@@ -44,27 +53,23 @@ export default async function handler(req, res) {
     const rawUsername = body.username;
     let isNew = 1;
 
-    // If username is supplied, track uniqueness with Redis Set
     if (rawUsername && typeof rawUsername === "string") {
       const cleanUser = rawUsername.trim().toLowerCase();
-      // SADD returns 1 if new member added to set, 0 if already present
-      const added = await fetchRedis("sadd", "gtc:unique_users", cleanUser);
-      isNew = added === 1 ? 1 : 0;
+      // SADD returns 1 if newly added, 0 if already existed in the set
+      const saddResult = await fetchRedis("SADD", "gtc:unique_users", cleanUser);
+      isNew = saddResult === 1 ? 1 : 0;
     }
 
-    let count;
+    let count = null;
     if (isNew === 1) {
-      count = await fetchRedis("incr", "gtc:cards_generated");
-      if (count === null) {
-        // Fallback to set cardinality
-        count = await fetchRedis("scard", "gtc:unique_users") || 1;
-      }
+      count = await fetchRedis("INCR", "gtc:cards_generated");
     } else {
-      // Username already generated previously -> do not increment
-      count = await fetchRedis("get", "gtc:cards_generated");
-      if (count === null) {
-        count = await fetchRedis("scard", "gtc:unique_users") || 0;
-      }
+      count = await fetchRedis("GET", "gtc:cards_generated");
+    }
+
+    // Fallback if counter was not initialized: use cardinality of unique users set
+    if (count === null || count === undefined) {
+      count = await fetchRedis("SCARD", "gtc:unique_users") || 0;
     }
 
     return res.status(200).json({
@@ -74,10 +79,10 @@ export default async function handler(req, res) {
     });
   }
 
-  // GET request: retrieve current count
-  let count = await fetchRedis("get", "gtc:cards_generated");
-  if (count === null) {
-    count = await fetchRedis("scard", "gtc:unique_users") || 0;
+  // GET request
+  let count = await fetchRedis("GET", "gtc:cards_generated");
+  if (count === null || count === undefined) {
+    count = await fetchRedis("SCARD", "gtc:unique_users") || 0;
   }
   return res.status(200).json({ count: Number(count || 0) });
 }
