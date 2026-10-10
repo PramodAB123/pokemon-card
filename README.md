@@ -1,4 +1,4 @@
-# 🛸 POKÉMON-CARD EXPLORER / SUBSPACE STAR SCOUT
+# 🛸 SUBSPACE STAR SCOUT
 
 > **Transform your GitHub profile into an Interstellar Explorer Trading Card.**  
 > Powered by live GitHub telemetry, atomic Redis tracking, and dynamic 3D holographic card rendering.
