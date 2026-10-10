@@ -39,6 +39,22 @@ def get_redis_client():
 
 redis = get_redis_client()
 
+# ── Test-account filter ───────────────────────────────────────────────────
+_TEST_PREFIXES = ("qa-test-", "qa-bot-", "cors-qa-", "test-explorer-", "gitstar-test-")
+_TEST_EXACT   = {"cors-qa-user", "test-user", "testuser"}
+
+def is_test_user(u: str) -> bool:
+    """Return True if the username was injected by the automated test suite."""
+    lower = u.lower()
+    if lower in _TEST_EXACT:
+        return True
+    return any(lower.startswith(p) for p in _TEST_PREFIXES)
+
+def filter_real_users(users) -> list:
+    """Return only genuine usernames, sorted newest-last (set order is random)."""
+    return [u for u in users if not is_test_user(u)]
+
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     if not redis or not request.url.path.startswith("/api/"):
@@ -295,17 +311,10 @@ async def get_counter(request: Request):
     r = get_redis_client() or redis
     if r:
         try:
-            # SCARD of unique_users set is single source of truth
-            sc = r.scard("gtc:unique_users")
-            if sc is not None and sc > 0:
-                count = sc
-            else:
-                val = r.get("gtc:cards_generated")
-                count = int(val) if val is not None else 0
-
-            raw_users = r.smembers("gtc:unique_users")
-            if raw_users:
-                unique_users = list(raw_users)
+            raw_users = r.smembers("gtc:unique_users") or []
+            real_users = filter_real_users(raw_users)
+            count = len(real_users)
+            unique_users = real_users
         except Exception as e:
             print(f"Counter Redis GET error: {e}")
 
@@ -341,16 +350,12 @@ async def increment_counter_endpoint(request: Request):
                 sadd_res = r.sadd("gtc:unique_users", username)
                 is_new = (sadd_res == 1 or sadd_res is True)
 
-            sc = r.scard("gtc:unique_users")
-            if sc is not None and sc > 0:
-                count = sc
-                r.set("gtc:cards_generated", str(count))
-            else:
-                count = int(r.incr("gtc:cards_generated"))
-
-            raw_users = r.smembers("gtc:unique_users")
-            if raw_users:
-                unique_users = list(raw_users)
+            raw_users = r.smembers("gtc:unique_users") or []
+            real_users = filter_real_users(raw_users)
+            count = len(real_users)
+            unique_users = real_users
+            # keep gtc:cards_generated in sync with real-user count
+            r.set("gtc:cards_generated", str(count))
         except Exception as e:
             print(f"Counter Redis POST error: {e}")
 

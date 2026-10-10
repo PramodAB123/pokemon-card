@@ -2,6 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useCounter } from "../lib/useCounter.js";
 
 const RECENT_KEY = "gitstar-explorer-recent";
+
+// Filter out bot/test accounts injected by the CI test suite
+const TEST_PREFIXES = ["qa-test-", "qa-bot-", "cors-qa-", "test-explorer-", "gitstar-test-"];
+const TEST_EXACT = new Set(["cors-qa-user", "test-user", "testuser"]);
+function isTestUser(u) {
+  const lower = u.toLowerCase();
+  return TEST_EXACT.has(lower) || TEST_PREFIXES.some((p) => lower.startsWith(p));
+}
+
 function getRecent() {
   try {
     return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
@@ -198,15 +207,18 @@ export default function SearchForm({ onSearch, initialError = "" }) {
       </div>
 
       {/* Global Explorers from Redis counter */}
-      {uniqueUsers && uniqueUsers.length > 0 && (
+      {uniqueUsers && uniqueUsers.filter((u) => !isTestUser(u)).length > 0 && (
         <div className="recent-wrap visible">
-          <span className="recent-label">Subspace Explorers ({uniqueUsers.length}):</span>
+          <span className="recent-label">Subspace Explorers ({uniqueUsers.filter((u) => !isTestUser(u)).length}):</span>
           <div className="recent-chips">
-            {uniqueUsers.slice(0, 10).map((u) => (
-              <button key={u} className="recent-chip" onClick={() => triggerChip(u)}>
-                @{u}
-              </button>
-            ))}
+            {uniqueUsers
+              .filter((u) => !isTestUser(u))
+              .slice(0, 10)
+              .map((u) => (
+                <button key={u} className="recent-chip" onClick={() => triggerChip(u)}>
+                  @{u}
+                </button>
+              ))}
           </div>
         </div>
       )}
