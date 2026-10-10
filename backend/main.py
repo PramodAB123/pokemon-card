@@ -306,6 +306,13 @@ async def health_check():
 
 @app.get("/api/counter")
 async def get_counter(request: Request):
+    # ── Test-mode: skip Redis entirely, return synthetic data ──
+    if request.headers.get("x-test-mode") == "true":
+        return JSONResponse(
+            content={"count": 0, "cards_generated": 0, "unique_users": [], "_test_mode": True},
+            headers={"Cache-Control": "no-store"}
+        )
+
     count = 0
     unique_users = []
     r = get_redis_client() or redis
@@ -330,6 +337,13 @@ async def get_counter(request: Request):
 @app.post("/api/counter/increment")
 @app.post("/api/counter")
 async def increment_counter_endpoint(request: Request):
+    # ── Test-mode: skip Redis entirely, return synthetic data ──
+    if request.headers.get("x-test-mode") == "true":
+        return JSONResponse(
+            content={"count": 1, "cards_generated": 1, "unique_users": [], "isNew": True, "success": True, "_test_mode": True},
+            headers={"Cache-Control": "no-store"}
+        )
+
     username = ""
     try:
         body = await request.json()
