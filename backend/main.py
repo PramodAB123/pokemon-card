@@ -24,10 +24,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-try:
-    redis = Redis.from_env()
-except Exception:
-    redis = None
+def get_redis_client():
+    url = os.environ.get("UPSTASH_REDIS_REST_URL") or os.environ.get("KV_REST_API_URL")
+    token = os.environ.get("UPSTASH_REDIS_REST_TOKEN") or os.environ.get("KV_REST_API_TOKEN")
+    if url and token:
+        try:
+            return Redis(url=url.rstrip("/"), token=token)
+        except Exception as e:
+            print(f"Redis init error with explicit creds: {e}")
+    try:
+        return Redis.from_env()
+    except Exception:
+        return None
+
+redis = get_redis_client()
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
@@ -281,33 +291,77 @@ async def health_check():
 @app.get("/api/counter")
 async def get_counter(request: Request):
     count = 0
-    if redis:
+    unique_users = []
+    r = get_redis_client() or redis
+    if r:
         try:
-            val = redis.get("gtc:cards_generated")
-            if val is None:
-                # Key doesn't exist yet — initialise it at 0
-                redis.setnx("gtc:cards_generated", 0)
-                count = 0
+            # SCARD of unique_users set is single source of truth
+            sc = r.scard("gtc:unique_users")
+            if sc is not None and sc > 0:
+                count = sc
             else:
-                count = int(val)
+                val = r.get("gtc:cards_generated")
+                count = int(val) if val is not None else 0
+
+            raw_users = r.smembers("gtc:unique_users")
+            if raw_users:
+                unique_users = list(raw_users)
         except Exception as e:
-            print(f"Counter Redis error: {e}")
+            print(f"Counter Redis GET error: {e}")
+
     return JSONResponse(
-        content={"count": count},
+        content={
+            "count": int(count or 0),
+            "cards_generated": int(count or 0),
+            "unique_users": unique_users
+        },
         headers={"Cache-Control": "no-store"}
     )
 
 @app.post("/api/counter/increment")
 @app.post("/api/counter")
 async def increment_counter_endpoint(request: Request):
-    count = 1
-    if redis:
+    username = ""
+    try:
+        body = await request.json()
+        if isinstance(body, dict):
+            raw_u = body.get("username")
+            if raw_u and isinstance(raw_u, str):
+                username = raw_u.strip().lower().lstrip("@")
+    except Exception:
+        pass
+
+    count = 0
+    unique_users = []
+    is_new = False
+    r = get_redis_client() or redis
+    if r:
         try:
-            count = int(redis.incr("gtc:cards_generated"))
+            if username:
+                sadd_res = r.sadd("gtc:unique_users", username)
+                is_new = (sadd_res == 1 or sadd_res is True)
+
+            sc = r.scard("gtc:unique_users")
+            if sc is not None and sc > 0:
+                count = sc
+                r.set("gtc:cards_generated", str(count))
+            else:
+                count = int(r.incr("gtc:cards_generated"))
+
+            raw_users = r.smembers("gtc:unique_users")
+            if raw_users:
+                unique_users = list(raw_users)
         except Exception as e:
-            print(f"Counter Redis increment error: {e}")
+            print(f"Counter Redis POST error: {e}")
+
     return JSONResponse(
-        content={"count": count, "success": True},
+        content={
+            "count": int(count or 0),
+            "cards_generated": int(count or 0),
+            "unique_users": unique_users,
+            "isNew": is_new,
+            "success": True
+        },
         headers={"Cache-Control": "no-store"}
     )
 
@@ -317,16 +371,20 @@ async def get_card(user: str, refresh: bool = False):
         return JSONResponse(status_code=400, content={"error": "invalid_username", "message": "Invalid username"})
 
     cache_key = f"gtc:card:{user}"
+    clean_user = user.strip().lower().lstrip("@")
+    r = get_redis_client() or redis
 
-    # ── 1. Cache hit — still count it, every view = one generation ───────────
-    if redis and not refresh:
+    # ── 1. Cache hit ───────────────────────────────────────────────────────────
+    if r and not refresh:
         try:
-            cached = redis.get(cache_key)
+            cached = r.get(cache_key)
             if cached:
                 cached_data = json.loads(cached) if isinstance(cached, str) else cached
                 cached_data["cached"] = True
                 try:
-                    redis.incr("gtc:cards_generated")
+                    r.sadd("gtc:unique_users", clean_user)
+                    sc = r.scard("gtc:unique_users")
+                    if sc: r.set("gtc:cards_generated", str(sc))
                 except Exception as e:
                     print(f"Counter incr (cache hit) error: {e}")
                 return cached_data
@@ -350,13 +408,15 @@ async def get_card(user: str, refresh: bool = False):
     card_data = compute_card_data(data)
 
     # ── 3. Save to cache + increment counter ──────────────────────────────────
-    if redis:
+    if r:
         try:
-            redis.setex(cache_key, 300, json.dumps(card_data))
+            r.setex(cache_key, 300, json.dumps(card_data))
         except Exception as e:
             print(f"Cache write error: {e}")
         try:
-            redis.incr("gtc:cards_generated")
+            r.sadd("gtc:unique_users", clean_user)
+            sc = r.scard("gtc:unique_users")
+            if sc: r.set("gtc:cards_generated", str(sc))
         except Exception as e:
             print(f"Counter incr (fresh) error: {e}")
 
