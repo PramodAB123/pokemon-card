@@ -96,7 +96,7 @@ export default function SearchForm({ onSearch, initialError = "" }) {
   const inputRef = useRef(null);
 
   // Live card counter
-  const { count, loading: counterLoading } = useCounter();
+  const { count, uniqueUsers, loading: counterLoading } = useCounter();
   const [displayCount, setDisplayCount] = useState(0);
   const animRef = useRef(null);
   const displayCountRef = useRef(0);
@@ -161,7 +161,7 @@ export default function SearchForm({ onSearch, initialError = "" }) {
               className="scout-input"
               id="githubInput"
               type="text"
-              placeholder="enter GitHub callsign or username…"
+              placeholder="enter GitHub callsign or username..."
               spellCheck="false"
               maxLength={39}
               aria-label="GitHub username"
@@ -190,17 +190,31 @@ export default function SearchForm({ onSearch, initialError = "" }) {
       <div className="counter-bar">
         <span className="counter-dot" style={{ opacity: counterLoading ? 0.4 : 1 }} />
         <span className="counter-num">
-          {counterLoading && count === null ? "…" : displayCount.toLocaleString()}
+          {counterLoading && count === null ? "..." : displayCount.toLocaleString()}
         </span>
         <span className="counter-label">explorer cards forged</span>
         <span className="counter-sep">|</span>
         <span className="how-link">subspace grid live ✦</span>
       </div>
 
-      {/* Recent expeditions */}
-      {recent.length > 0 && (
+      {/* Global Explorers from Redis counter */}
+      {uniqueUsers && uniqueUsers.length > 0 && (
         <div className="recent-wrap visible">
-          <span className="recent-label">Recent Flights:</span>
+          <span className="recent-label">Subspace Explorers ({uniqueUsers.length}):</span>
+          <div className="recent-chips">
+            {uniqueUsers.slice(0, 10).map((u) => (
+              <button key={u} className="recent-chip" onClick={() => triggerChip(u)}>
+                @{u}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Local Recent expeditions */}
+      {recent.length > 0 && (
+        <div className="recent-wrap visible" style={{ marginTop: "10px" }}>
+          <span className="recent-label">Your History:</span>
           <div className="recent-chips">
             {recent.map((u) => (
               <button key={u} className="recent-chip" onClick={() => triggerChip(u)}>
