@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "test": "node ../tests/run_all.mjs",
+    "test:prod": "node ../tests/run_all.mjs https://pokitrainer.vercel.app",
     "preview": "vite preview"
   },
   "dependencies": {
