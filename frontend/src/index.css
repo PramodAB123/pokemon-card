@@ -118,6 +118,7 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   justify-content: center;
+  overflow-x: hidden;
 }
 
 .hero-layout {
@@ -312,7 +313,8 @@ body {
 .counter-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px 10px;
   font-size: 13px;
   color: rgba(148, 163, 184, 0.7);
 }
@@ -322,6 +324,7 @@ body {
   background: #38BDF8;
   animation: pulseDot 2s ease-in-out infinite;
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+  flex-shrink: 0;
 }
 @keyframes pulseDot {
   0%,100% { opacity: 1; transform: scale(1); }
@@ -329,7 +332,8 @@ body {
 }
 .counter-num { color: #fff; font-weight: 700; font-family: 'Orbitron', monospace; }
 .counter-sep { opacity: 0.3; }
-.how-link { color: #818CF8; font-size: 12px; letter-spacing: 0.05em; }
+.counter-label { white-space: nowrap; }
+.how-link { color: #818CF8; font-size: 12px; letter-spacing: 0.05em; white-space: nowrap; }
 
 /* ── Recent Wrap ──────────────────────────────────────────── */
 .recent-wrap {
@@ -1535,110 +1539,269 @@ body {
   box-shadow: 0 4px 25px rgba(56, 189, 248, 0.6);
 }
 
-/* ── Responsive Viewports ─────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE VIEWPORTS
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Laptop / Large Tablet ────────────────────────────────── */
 @media (max-width: 1200px) {
   .hero-layout {
     padding: 36px 32px 40px;
     gap: 36px;
+    max-width: 100%;
   }
   .hero-solar-system {
     max-width: 600px;
   }
 }
 
+/* ── Tablet / Stacked Layout ──────────────────────────────── */
 @media (max-width: 960px) {
   .scene { justify-content: flex-start; }
+
   .search-section {
     min-height: auto;
     padding-top: max(env(safe-area-inset-top), 24px);
     padding-bottom: 40px;
   }
+
   .hero-layout {
     flex-direction: column;
-    padding: 24px 20px 40px;
+    padding: 28px 20px 40px;
     align-items: center;
-    gap: 36px;
+    gap: 32px;
   }
+
   .hero-left {
     max-width: 560px;
     width: 100%;
     margin: 0 auto;
+    gap: 18px;
   }
+
+  .hero-sub { max-width: 100%; }
+
   .hero-solar-system {
     width: 100%;
-    max-width: 580px;
+    max-width: 560px;
+    gap: 12px;
   }
+
   .solar-stage {
-    min-height: 340px;
+    min-height: 320px;
   }
+
   .hsg-wrap { display: none; }
+
+  /* Result page stacked */
   .result-layout {
     grid-template-columns: 1fr;
-    max-width: 480px;
+    max-width: 520px;
     margin: 0 auto;
     padding: 28px 16px 24px;
     gap: 20px;
   }
   .card-column { order: -1; }
+
   .repos-section {
     padding: 0 16px 48px;
-    max-width: 480px;
+    max-width: 520px;
+    margin: 0 auto;
   }
   .repos-grid { grid-template-columns: 1fr; }
+
+  /* Hide decorative side panels on tablet */
+  .side-panel.left-panel,
+  .side-panel.right-panel {
+    display: none;
+  }
 }
 
+/* ── Mobile Portrait ──────────────────────────────────────── */
 @media (max-width: 560px) {
   .search-section {
-    padding-top: max(env(safe-area-inset-top), 16px);
-    padding-bottom: 24px;
+    padding-top: max(env(safe-area-inset-top), 12px);
+    padding-bottom: 20px;
   }
+
   .hero-layout {
-    padding: 16px 14px 28px;
-    gap: 24px;
+    padding: 14px 14px 24px;
+    gap: 20px;
   }
+
+  .hero-left {
+    gap: 14px;
+  }
+
+  /* Headline scales smaller on narrow screens */
   .hero-headline {
-    font-size: clamp(36px, 11vw, 50px);
+    font-size: clamp(34px, 10.5vw, 48px);
+    line-height: 0.92;
   }
+
+  .hero-sub {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /* Search form compact */
   .scout-input-wrap {
     padding: 4px 4px 4px 12px;
+    border-radius: 10px;
+  }
+  .scout-input {
+    font-size: 14px;
   }
   .scout-btn {
-    padding: 8px 14px;
-    font-size: 11px;
+    padding: 9px 12px;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    border-radius: 7px;
   }
+
+  /* Quick examples: wrap to 2 per row */
+  .quick-examples {
+    gap: 6px;
+  }
+  .example-chip, .recent-chip {
+    font-size: 11.5px;
+    padding: 5px 12px;
+  }
+
+  /* Heatmap: allow horizontal scroll, keep it compact */
+  .contrib-heatmap {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+  .heatmap-label { font-size: 11px; }
+  .heatmap-canvas-wrap {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .heatmap-grid {
+    min-width: 480px;
+  }
+
+  /* Counter bar: wrap to 2 lines if needed */
+  .counter-bar {
+    font-size: 12px;
+    gap: 6px 8px;
+  }
+  .counter-sep { display: none; }
+  .how-link { font-size: 11px; }
+
+  /* Solar system: square + 3-col legend grid */
   .hero-solar-system {
     max-width: 100%;
+    gap: 10px;
   }
   .solar-stage {
-    min-height: 280px;
+    min-height: 260px;
     aspect-ratio: 1 / 1;
-    border-radius: 20px;
+    border-radius: 18px;
+    max-height: 380px;
   }
   .solar-legend {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     width: 100%;
-    border-radius: 16px;
-    padding: 8px;
-    gap: 6px;
+    border-radius: 14px;
+    padding: 6px;
+    gap: 5px;
     box-sizing: border-box;
   }
   .solar-legend-item {
     justify-content: center;
-    padding: 7px 6px;
-    font-size: 11px;
+    flex-direction: column;
+    gap: 4px;
+    padding: 7px 4px;
+    font-size: 10.5px;
     width: 100%;
     box-sizing: border-box;
   }
   .solar-legend-item .legend-planet-au {
     display: none;
   }
+  .solar-legend-item i {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Callout tooltip narrower */
+  .solar-callout {
+    min-width: 150px;
+    max-width: 190px;
+    padding: 8px 10px 10px;
+  }
+  .solar-callout-name {
+    font-size: 12px;
+  }
+
+  /* Result page */
   .result-layout {
-    padding: 20px 12px;
-    gap: 16px;
+    padding: 16px 12px;
+    gap: 14px;
+    max-width: 100%;
   }
   .card-actions {
     max-width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .action-btn {
+    width: 100%;
+    font-size: 11.5px;
+    padding: 12px 16px;
+  }
+
+  /* Repos */
+  .repos-section {
+    padding: 0 12px 40px;
+  }
+
+  /* 404 page compact */
+  .not-found-card {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+  .not-found-radar-wrap {
+    width: 170px;
+    height: 170px;
+    margin-bottom: 14px;
+  }
+  .not-found-glitch {
+    font-size: clamp(38px, 10vw, 56px);
+  }
+  .dossier-key {
+    min-width: 100px;
+  }
+}
+
+/* ── Small Mobile (≤ 380px) ───────────────────────────────── */
+@media (max-width: 380px) {
+  .hero-layout {
+    padding: 10px 10px 20px;
+    gap: 16px;
+  }
+  .hero-headline {
+    font-size: clamp(30px, 10vw, 40px);
+  }
+  .scout-btn {
+    font-size: 10px;
+    padding: 8px 10px;
+  }
+  .solar-legend {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .solar-legend li:last-child {
+    grid-column: 1 / -1;
+  }
+  .solar-legend-item {
+    font-size: 10px;
+  }
+  .not-found-radar-wrap {
+    width: 140px;
+    height: 140px;
   }
 }
 
