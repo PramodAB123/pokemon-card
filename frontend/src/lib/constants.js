@@ -210,7 +210,7 @@ export const CLEARANCE_CONFIG = {
   "top-secret": {
     id: "top-secret",
     label: "TOP SECRET",
-    badge: "★★★ TOP SEC",
+    badge: "★",
     stars: 3,
     color: "#FBBF24",
     glow: "rgba(251, 191, 36, 0.6)",
@@ -220,7 +220,7 @@ export const CLEARANCE_CONFIG = {
   ultra: {
     id: "ultra",
     label: "ULTRA",
-    badge: "★★★★ ULTRA",
+    badge: "✦",
     stars: 4,
     color: "#A855F7",
     glow: "rgba(168, 85, 247, 0.7)",
@@ -230,7 +230,7 @@ export const CLEARANCE_CONFIG = {
   "black-ops": {
     id: "black-ops",
     label: "BLACK OPS",
-    badge: "✦ BLACK OPS",
+    badge: "✦",
     stars: 5,
     color: "#06B6D4",
     glow: "rgba(6, 182, 212, 0.85)",
