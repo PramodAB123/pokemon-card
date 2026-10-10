@@ -6,13 +6,14 @@ const PLANETS = [
     name: "Prime",
     color: "#E2A03A",
     shadow: "#5C2E08",
-    glow: "rgba(226, 160, 58, 0.55)",
-    radius: 6.5,
-    orbit: 58,
-    speed: 0.018,
+    glow: "rgba(226, 160, 58, 0.65)",
+    radius: 7.2,
+    orbit: 62,
+    speed: 0.016,
     angle: 0.9,
     kind: "rock",
-    lore: "Warm inner world. The first light after the star.",
+    typeTag: "Terrestrial",
+    lore: "Warm inner world bathed in intense solar radiance.",
     au: "0.4 AU",
   },
   {
@@ -20,17 +21,18 @@ const PLANETS = [
     name: "Quantum",
     color: "#7EB8D4",
     shadow: "#163044",
-    glow: "rgba(126, 184, 212, 0.5)",
-    radius: 8.5,
-    orbit: 96,
-    speed: 0.012,
+    glow: "rgba(126, 184, 212, 0.6)",
+    radius: 9.5,
+    orbit: 102,
+    speed: 0.011,
     angle: 2.35,
     kind: "ice",
+    typeTag: "Glacial Oasis",
     hasMoon: true,
-    moonR: 1.8,
-    moonOrbit: 15,
-    moonSpeed: 0.045,
-    lore: "Pale ice world with a thin, quiet atmosphere.",
+    moonR: 2.2,
+    moonOrbit: 18,
+    moonSpeed: 0.042,
+    lore: "Pale ice world with delicate nitrogen auroras.",
     au: "0.9 AU",
   },
   {
@@ -38,13 +40,14 @@ const PLANETS = [
     name: "Crimson",
     color: "#C45C4A",
     shadow: "#3A1510",
-    glow: "rgba(196, 92, 74, 0.45)",
-    radius: 7.5,
-    orbit: 132,
-    speed: 0.0085,
+    glow: "rgba(196, 92, 74, 0.55)",
+    radius: 8.5,
+    orbit: 144,
+    speed: 0.0078,
     angle: 4.15,
     kind: "rock",
-    lore: "Dust and iron. A still, rusted outpost.",
+    typeTag: "Iron Desert",
+    lore: "Canyon-carved red sands and rich mineral outposts.",
     au: "1.5 AU",
   },
   {
@@ -52,17 +55,18 @@ const PLANETS = [
     name: "Prism",
     color: "#4A9E8E",
     shadow: "#12332C",
-    glow: "rgba(74, 158, 142, 0.45)",
-    radius: 15,
-    orbit: 178,
-    speed: 0.0052,
+    glow: "rgba(74, 158, 142, 0.55)",
+    radius: 17,
+    orbit: 196,
+    speed: 0.0048,
     angle: 1.15,
     kind: "gas",
+    typeTag: "Ringed Giant",
     bands: ["#3D8A7C", "#5AAF9C", "#2F6F64", "#7BC4B2"],
     hasRings: true,
-    ringInner: 20,
-    ringOuter: 32,
-    lore: "A slow gas giant. Ice rings catch the starlight.",
+    ringInner: 23,
+    ringOuter: 38,
+    lore: "Majestic teal giant encircled by crystalline ice rings.",
     au: "3.2 AU",
   },
   {
@@ -70,18 +74,19 @@ const PLANETS = [
     name: "Nebula",
     color: "#7A6BB0",
     shadow: "#1E1638",
-    glow: "rgba(122, 107, 176, 0.45)",
-    radius: 12,
-    orbit: 224,
-    speed: 0.0036,
+    glow: "rgba(122, 107, 176, 0.55)",
+    radius: 13.5,
+    orbit: 246,
+    speed: 0.0034,
     angle: 3.6,
     kind: "gas",
+    typeTag: "Storm Sphere",
     bands: ["#6A5BA0", "#8B7CC4", "#534680", "#9A8AD4"],
     hasMoon: true,
-    moonR: 2.1,
-    moonOrbit: 19,
-    moonSpeed: 0.03,
-    lore: "Violet storms. Auroras that never quite settle.",
+    moonR: 2.4,
+    moonOrbit: 22,
+    moonSpeed: 0.028,
+    lore: "Swirling violet typhoons and perpetual magnetic storms.",
     au: "5.4 AU",
   },
   {
@@ -89,13 +94,14 @@ const PLANETS = [
     name: "Titanium",
     color: "#9AA3B2",
     shadow: "#2A3038",
-    glow: "rgba(154, 163, 178, 0.35)",
-    radius: 5.2,
-    orbit: 258,
-    speed: 0.0024,
+    glow: "rgba(154, 163, 178, 0.45)",
+    radius: 6.2,
+    orbit: 284,
+    speed: 0.0022,
     angle: 5.55,
     kind: "rock",
-    lore: "A cold dwarf at the edge of the wind.",
+    typeTag: "Outer Sentinel",
+    lore: "Cold dwarf world at the fringe of the solar wind.",
     au: "8.1 AU",
   },
 ];
@@ -125,11 +131,12 @@ export default function HeroSolarSystem() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
     const ctx = canvas.getContext("2d");
 
-    let width = 560;
-    let height = 560;
+    let width = wrap.clientWidth || 640;
+    let height = wrap.clientHeight || 580;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const sim = PLANETS.map((p) => ({
@@ -138,172 +145,240 @@ export default function HeroSolarSystem() {
       moonAngle: Math.random() * Math.PI * 2,
     }));
 
-    const stars = Array.from({ length: 90 }, () => ({
+    // Twinkling stars with 3D parallax depth
+    const stars = Array.from({ length: 110 }, () => ({
       x: Math.random(),
       y: Math.random(),
-      r: Math.random() * 1.1 + 0.2,
-      a: 0.15 + Math.random() * 0.45,
+      r: Math.random() * 1.25 + 0.25,
+      a: 0.18 + Math.random() * 0.55,
       tw: Math.random() * Math.PI * 2,
+      depth: 0.15 + Math.random() * 0.85,
     }));
 
-    const dust = Array.from({ length: 90 }, () => ({
-      radius: 150 + Math.random() * 16,
+    // Asteroid belt dust between Crimson (144) and Prism (196)
+    const dust = Array.from({ length: 110 }, () => ({
+      radius: 164 + Math.random() * 22,
       angle: Math.random() * Math.PI * 2,
-      size: 0.4 + Math.random() * 0.9,
-      speed: 0.004 + Math.random() * 0.003,
-      a: 0.12 + Math.random() * 0.28,
+      size: 0.5 + Math.random() * 1.1,
+      speed: 0.0035 + Math.random() * 0.003,
+      a: 0.14 + Math.random() * 0.32,
     }));
 
-    const meteor = { t: 220, x: 0, y: 0, vx: 0, vy: 0, trail: [] };
+    const meteor = { t: 180, x: 0, y: 0, vx: 0, vy: 0, trail: [] };
 
     function resize() {
-      const rect = canvas.getBoundingClientRect();
-      width = rect.width || 560;
-      height = rect.height || 560;
+      const rect = wrap.getBoundingClientRect();
+      width = Math.round(rect.width) || 640;
+      height = Math.round(rect.height) || 580;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
+
     resize();
-    window.addEventListener("resize", resize);
 
-    function drawSun(cx, cy, tick) {
-      const pulse = Math.sin(tick * 0.012) * 3;
+    let ro;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => resize());
+      ro.observe(wrap);
+    } else {
+      window.addEventListener("resize", resize);
+    }
 
-      const halo = ctx.createRadialGradient(cx, cy, 8, cx, cy, 118 + pulse);
-      halo.addColorStop(0, "rgba(255, 214, 140, 0.55)");
-      halo.addColorStop(0.18, "rgba(255, 170, 70, 0.28)");
-      halo.addColorStop(0.45, "rgba(255, 120, 40, 0.08)");
+    function drawSun(cx, cy, tick, scale) {
+      const pulse = Math.sin(tick * 0.016) * 4;
+      const sunR = Math.max(18, 23 * Math.min(scale, 1.25));
+
+      // Deep atmospheric corona glow
+      const haloR = (135 + pulse) * scale;
+      const halo = ctx.createRadialGradient(cx, cy, sunR * 0.4, cx, cy, haloR);
+      halo.addColorStop(0, "rgba(255, 232, 160, 0.65)");
+      halo.addColorStop(0.18, "rgba(255, 175, 70, 0.35)");
+      halo.addColorStop(0.42, "rgba(255, 120, 38, 0.12)");
+      halo.addColorStop(0.72, "rgba(245, 158, 11, 0.03)");
       halo.addColorStop(1, "rgba(255, 80, 20, 0)");
       ctx.fillStyle = halo;
       ctx.beginPath();
-      ctx.arc(cx, cy, 118 + pulse, 0, Math.PI * 2);
+      ctx.arc(cx, cy, haloR, 0, Math.PI * 2);
       ctx.fill();
 
-      const core = ctx.createRadialGradient(cx - 5, cy - 6, 1, cx, cy, 20);
-      core.addColorStop(0, "#FFF7E6");
-      core.addColorStop(0.35, "#FFE08A");
-      core.addColorStop(0.72, "#F0A12A");
-      core.addColorStop(1, "#C45A12");
-      ctx.shadowColor = "rgba(255, 170, 60, 0.9)";
-      ctx.shadowBlur = 22;
+      // Outer golden solar flare ring
+      const flare = ctx.createRadialGradient(cx, cy, sunR * 0.8, cx, cy, sunR * 2.2);
+      flare.addColorStop(0, "rgba(255, 200, 80, 0.4)");
+      flare.addColorStop(0.5, "rgba(245, 140, 20, 0.15)");
+      flare.addColorStop(1, "rgba(220, 70, 10, 0)");
+      ctx.fillStyle = flare;
+      ctx.beginPath();
+      ctx.arc(cx, cy, sunR * 2.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Incandescent solar photosphere core
+      const core = ctx.createRadialGradient(cx - sunR * 0.28, cy - sunR * 0.32, 1, cx, cy, sunR);
+      core.addColorStop(0, "#FFFDF5");
+      core.addColorStop(0.32, "#FFE599");
+      core.addColorStop(0.68, "#F59E0B");
+      core.addColorStop(0.92, "#D97706");
+      core.addColorStop(1, "#92400E");
+
+      ctx.save();
+      ctx.shadowColor = "rgba(255, 180, 60, 0.95)";
+      ctx.shadowBlur = 28 * scale;
       ctx.fillStyle = core;
       ctx.beginPath();
-      ctx.arc(cx, cy, 19, 0, Math.PI * 2);
+      ctx.arc(cx, cy, sunR, 0, Math.PI * 2);
       ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.restore();
 
-      ctx.fillStyle = "rgba(180, 80, 20, 0.28)";
+      // Slow rotating solar granules / magnetic sunspots
+      const spotAngle = tick * 0.003;
+      const s1x = cx + Math.cos(spotAngle) * (sunR * 0.42);
+      const s1y = cy + Math.sin(spotAngle) * (sunR * 0.28);
+      const s2x = cx + Math.cos(spotAngle + 2.4) * (sunR * 0.52);
+      const s2y = cy + Math.sin(spotAngle + 2.4) * (sunR * 0.35);
+
+      ctx.fillStyle = "rgba(180, 83, 9, 0.32)";
       ctx.beginPath();
-      ctx.arc(cx + 6, cy + 4, 2.4, 0, Math.PI * 2);
-      ctx.arc(cx - 5, cy - 3, 1.6, 0, Math.PI * 2);
+      ctx.arc(s1x, s1y, 2.5 * scale, 0, Math.PI * 2);
+      ctx.arc(s2x, s2y, 1.8 * scale, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    function drawRing(px, py, inner, outer, front) {
+    function drawRing(px, py, inner, outer, front, ringTilt = 0.44) {
       ctx.save();
       ctx.translate(px, py);
       ctx.beginPath();
-      ctx.rect(-48, front ? -1 : -48, 96, 49);
+      const clipHeight = (outer + 6) * 1.5;
+      const clipWidth = (outer + 6) * 2;
+      ctx.rect(-clipWidth / 2, front ? -1 : -clipHeight, clipWidth, clipHeight);
       ctx.clip();
-      ctx.rotate(0.42);
+      ctx.rotate(ringTilt);
       ctx.scale(1, 0.28);
       ctx.beginPath();
       ctx.arc(0, 0, outer, 0, Math.PI * 2);
       ctx.arc(0, 0, inner, 0, Math.PI * 2, true);
+
       const rg = ctx.createLinearGradient(-outer, 0, outer, 0);
-      rg.addColorStop(0, "rgba(210, 230, 220, 0.05)");
-      rg.addColorStop(0.45, "rgba(220, 236, 226, 0.42)");
-      rg.addColorStop(0.55, "rgba(160, 190, 175, 0.12)");
-      rg.addColorStop(1, "rgba(210, 230, 220, 0.05)");
+      rg.addColorStop(0, "rgba(180, 225, 215, 0.08)");
+      rg.addColorStop(0.35, "rgba(220, 242, 235, 0.55)");
+      rg.addColorStop(0.5, "rgba(120, 185, 170, 0.25)");
+      rg.addColorStop(0.65, "rgba(220, 242, 235, 0.55)");
+      rg.addColorStop(1, "rgba(180, 225, 215, 0.08)");
       ctx.fillStyle = rg;
       ctx.fill("evenodd");
+
+      // Delicate Cassini gap line
+      ctx.beginPath();
+      ctx.arc(0, 0, (inner + outer) * 0.52, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(10, 20, 25, 0.4)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
       ctx.restore();
     }
 
-    function drawPlanet(p, px, py, cx, cy, dim) {
-      const r = p.radius;
+    function drawPlanet(p, px, py, cx, cy, dim, scale) {
+      const r = Math.max(5, p.radius * Math.min(Math.max(scale, 0.8), 1.25));
       ctx.save();
-      ctx.globalAlpha = dim ? 0.38 : 1;
+      ctx.globalAlpha = dim ? 0.32 : 1;
 
-      const atmos = ctx.createRadialGradient(px, py, r * 0.6, px, py, r * 2.4);
+      // Atmospheric outer glow
+      const atmos = ctx.createRadialGradient(px, py, r * 0.6, px, py, r * 2.5);
       atmos.addColorStop(0, p.glow);
       atmos.addColorStop(1, "transparent");
       ctx.fillStyle = atmos;
       ctx.beginPath();
-      ctx.arc(px, py, r * 2.4, 0, Math.PI * 2);
+      ctx.arc(px, py, r * 2.5, 0, Math.PI * 2);
       ctx.fill();
 
-      if (p.hasRings) drawRing(px, py, p.ringInner, p.ringOuter, false);
+      // Back half of planetary rings (behind sphere)
+      if (p.hasRings) {
+        drawRing(px, py, p.ringInner * scale, p.ringOuter * scale, false);
+      }
 
+      // 3D Spherical shading facing the Sun
       const toSun = Math.atan2(cy - py, cx - px);
-      const lx = px + Math.cos(toSun) * r * 0.38;
-      const ly = py + Math.sin(toSun) * r * 0.38;
+      const lx = px + Math.cos(toSun) * r * 0.42;
+      const ly = py + Math.sin(toSun) * r * 0.42;
 
       const sphere = ctx.createRadialGradient(lx, ly, r * 0.08, px, py, r);
-      sphere.addColorStop(0, mix(p.color, 0.55));
-      sphere.addColorStop(0.35, p.color);
+      sphere.addColorStop(0, mix(p.color, 0.6));
+      sphere.addColorStop(0.38, p.color);
       sphere.addColorStop(0.78, p.shadow);
-      sphere.addColorStop(1, "#07080c");
+      sphere.addColorStop(1, "#05070d");
 
       ctx.beginPath();
       ctx.arc(px, py, r, 0, Math.PI * 2);
       ctx.fillStyle = sphere;
       ctx.fill();
 
+      // Gas giant cloud bands
       if (p.kind === "gas" && p.bands) {
         ctx.save();
         ctx.beginPath();
         ctx.arc(px, py, r, 0, Math.PI * 2);
         ctx.clip();
-        ctx.globalAlpha = dim ? 0.2 : 0.28;
+        ctx.globalAlpha = dim ? 0.2 : 0.35;
         p.bands.forEach((band, i) => {
-          const y = py - r + (i + 0.6) * ((r * 2) / p.bands.length);
+          const y = py - r + (i + 0.5) * ((r * 2) / p.bands.length);
           ctx.fillStyle = band;
-          ctx.fillRect(px - r, y, r * 2, r * 0.28);
+          ctx.fillRect(px - r, y, r * 2, r * 0.32);
         });
         ctx.restore();
       }
 
+      // Ice world polar cap
       if (p.kind === "ice") {
         ctx.save();
         ctx.beginPath();
         ctx.arc(px, py, r, 0, Math.PI * 2);
         ctx.clip();
-        ctx.globalAlpha = 0.35;
-        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
         ctx.beginPath();
-        ctx.ellipse(px, py - r * 0.55, r * 0.55, r * 0.28, 0, 0, Math.PI * 2);
+        ctx.ellipse(px, py - r * 0.55, r * 0.6, r * 0.3, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
 
+      // Specular limb glint
       ctx.globalCompositeOperation = "lighter";
-      ctx.fillStyle = "rgba(255,255,255,0.35)";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.42)";
       ctx.beginPath();
-      ctx.ellipse(lx - r * 0.05, ly - r * 0.05, r * 0.22, r * 0.14, toSun, 0, Math.PI * 2);
+      ctx.ellipse(lx - r * 0.05, ly - r * 0.05, r * 0.25, r * 0.16, toSun, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalCompositeOperation = "source-over";
 
-      if (p.hasRings) drawRing(px, py, p.ringInner, p.ringOuter, true);
+      // Front half of planetary rings (in front of sphere)
+      if (p.hasRings) {
+        drawRing(px, py, p.ringInner * scale, p.ringOuter * scale, true);
+      }
 
+      // Natural satellite (moon)
       if (p.hasMoon) {
         p.moonAngle += p.moonSpeed;
-        const mx = px + Math.cos(p.moonAngle) * p.moonOrbit;
-        const my = py + Math.sin(p.moonAngle) * p.moonOrbit * 0.55;
-        ctx.fillStyle = dim ? "rgba(226,232,240,0.35)" : "#D7DEE8";
+        const moonOrb = p.moonOrbit * scale;
+        const mx = px + Math.cos(p.moonAngle) * moonOrb;
+        const my = py + Math.sin(p.moonAngle) * moonOrb * 0.52;
+        const moonRad = Math.max(1.6, p.moonR * scale);
+
+        ctx.fillStyle = dim ? "rgba(226, 232, 240, 0.35)" : "#E2E8F0";
         ctx.beginPath();
-        ctx.arc(mx, my, p.moonR, 0, Math.PI * 2);
+        ctx.arc(mx, my, moonRad, 0, Math.PI * 2);
         ctx.fill();
       }
 
+      // Active hover halo indicator
       if (!dim && hoverRef.current === p.id) {
-        ctx.strokeStyle = "rgba(255,255,255,0.55)";
-        ctx.lineWidth = 1;
+        ctx.save();
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 1.8;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
         ctx.beginPath();
-        ctx.arc(px, py, r + 6, 0, Math.PI * 2);
+        ctx.arc(px, py, r + 7, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.restore();
       }
 
       ctx.restore();
@@ -314,66 +389,96 @@ export default function HeroSolarSystem() {
     function loop() {
       tick += 1;
       const tilt = tiltRef.current;
-      tilt.x += (tilt.tx - tilt.x) * 0.07;
-      tilt.y += (tilt.ty - tilt.y) * 0.07;
+      tilt.x += (tilt.tx - tilt.x) * 0.08;
+      tilt.y += (tilt.ty - tilt.y) * 0.08;
 
       ctx.clearRect(0, 0, width, height);
 
-      const scale = Math.min(width, height) / 560;
-      const cx = width / 2 + tilt.x * 18;
-      const cy = height / 2 + tilt.y * 10;
-      const squash = 0.62 + tilt.y * 0.08;
+      // System extent calibration:
+      // Outer orbit is Titanium (284). With planet radius, rings, callout padding, ~315 radius.
+      const maxExtent = 308;
+      const padX = 28;
+      const padY = 24;
+      const squash = 0.65 + tilt.y * 0.07;
 
+      // Scale dynamically so the solar system naturally fills the stage with generous presence
+      const scaleX = (width * 0.5 - padX) / maxExtent;
+      const scaleY = (height * 0.5 - padY) / (maxExtent * squash);
+      const scale = Math.min(scaleX, scaleY);
+
+      const cx = width / 2 + tilt.x * 24;
+      const cy = height / 2 + tilt.y * 14;
+
+      // Background stars with interactive 3D parallax
       stars.forEach((s) => {
-        const tw = 0.55 + Math.sin(tick * 0.02 + s.tw) * 0.45;
+        const tw = 0.5 + Math.sin(tick * 0.025 + s.tw) * 0.5;
+        const sx = s.x * width + tilt.x * s.depth * 20;
+        const sy = s.y * height + tilt.y * s.depth * 14;
         ctx.fillStyle = `rgba(255,255,255,${s.a * tw})`;
         ctx.beginPath();
-        ctx.arc(s.x * width, s.y * height, s.r, 0, Math.PI * 2);
+        ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
         ctx.fill();
       });
 
+      const active = hoverRef.current;
+
+      // Orbital tracks
       sim.forEach((p) => {
+        ctx.save();
         ctx.beginPath();
         ctx.ellipse(cx, cy, p.orbit * scale, p.orbit * scale * squash, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(255,255,255,0.08)";
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        if (active === p.id) {
+          ctx.strokeStyle = p.glow;
+          ctx.lineWidth = 1.8;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = active ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.085)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        ctx.restore();
       });
 
+      // Asteroid belt dust particles
       dust.forEach((d) => {
         d.angle += d.speed * 0.35;
         const ax = cx + Math.cos(d.angle) * d.radius * scale;
         const ay = cy + Math.sin(d.angle) * d.radius * scale * squash;
-        ctx.fillStyle = `rgba(200, 208, 220, ${d.a})`;
-        ctx.fillRect(ax, ay, d.size, d.size);
+        ctx.fillStyle = active ? `rgba(200, 214, 230, ${d.a * 0.4})` : `rgba(200, 214, 230, ${d.a})`;
+        ctx.fillRect(ax, ay, d.size * scale, d.size * scale);
       });
 
+      // Periodic shooting star
       meteor.t -= 1;
       if (meteor.t <= 0 && meteor.trail.length === 0) {
-        meteor.x = width * (0.1 + Math.random() * 0.4);
-        meteor.y = height * (0.08 + Math.random() * 0.2);
-        meteor.vx = 3.2 + Math.random();
-        meteor.vy = 1.4 + Math.random() * 0.6;
+        meteor.x = width * (0.08 + Math.random() * 0.4);
+        meteor.y = height * (0.06 + Math.random() * 0.2);
+        meteor.vx = 3.6 + Math.random() * 1.2;
+        meteor.vy = 1.5 + Math.random() * 0.7;
         meteor.trail = [];
-        meteor.t = 480 + Math.random() * 400;
+        meteor.t = 420 + Math.random() * 380;
       }
-      if (meteor.trail.length || meteor.t > 470) {
+      if (meteor.trail.length || meteor.t > 410) {
         meteor.x += meteor.vx;
         meteor.y += meteor.vy;
         meteor.trail.push({ x: meteor.x, y: meteor.y });
-        if (meteor.trail.length > 14) meteor.trail.shift();
-        if (meteor.x > width + 40 || meteor.y > height + 40) meteor.trail = [];
+        if (meteor.trail.length > 16) meteor.trail.shift();
+        if (meteor.x > width + 50 || meteor.y > height + 50) meteor.trail = [];
         meteor.trail.forEach((pt, i) => {
           const pct = i / meteor.trail.length;
-          ctx.fillStyle = `rgba(255,255,255,${pct * 0.28})`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${pct * 0.35})`;
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, pct * 1.4, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, pct * 1.5, 0, Math.PI * 2);
           ctx.fill();
         });
       }
 
-      drawSun(cx, cy, tick);
+      // Center Star (The Sun)
+      drawSun(cx, cy, tick, scale);
 
+      // Sort planets by Y position for authentic 3D depth occlusion
       const live = sim.map((p) => {
         p.angle += p.speed;
         const px = cx + Math.cos(p.angle) * p.orbit * scale;
@@ -382,16 +487,22 @@ export default function HeroSolarSystem() {
         return { p, px, py };
       }).sort((a, b) => a.py - b.py);
 
-      const active = hoverRef.current;
       live.forEach(({ p, px, py }) => {
-        drawPlanet(p, px, py, cx, cy, active && active !== p.id);
+        drawPlanet(p, px, py, cx, cy, active && active !== p.id, scale);
       });
 
+      // Update callout coordinates
       if (active && calloutRef.current) {
         const pos = posRef.current[active];
         if (pos) {
           calloutRef.current.style.left = `${pos.x}px`;
           calloutRef.current.style.top = `${pos.y}px`;
+          // If planet is near top boundary, flip tooltip down to prevent clipping
+          if (pos.y < 120) {
+            calloutRef.current.classList.add("is-flipped");
+          } else {
+            calloutRef.current.classList.remove("is-flipped");
+          }
         }
       }
 
@@ -399,8 +510,10 @@ export default function HeroSolarSystem() {
     }
 
     loop();
+
     return () => {
-      window.removeEventListener("resize", resize);
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", resize);
       cancelAnimationFrame(rafRef.current);
     };
   }, []);
@@ -411,17 +524,23 @@ export default function HeroSolarSystem() {
     if (!pos) return;
     calloutRef.current.style.left = `${pos.x}px`;
     calloutRef.current.style.top = `${pos.y}px`;
+    if (pos.y < 120) {
+      calloutRef.current.classList.add("is-flipped");
+    } else {
+      calloutRef.current.classList.remove("is-flipped");
+    }
   }, [hovered]);
 
-  function pickPlanet(e) {
+  function pickPlanet(clientX, clientY) {
+    if (!wrapRef.current) return null;
     const rect = wrapRef.current.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const mx = clientX - rect.left;
+    const my = clientY - rect.top;
     let found = null;
     for (const p of PLANETS) {
       const pos = posRef.current[p.id];
       if (!pos) continue;
-      if (Math.hypot(mx - pos.x, my - pos.y) < pos.r + 12) {
+      if (Math.hypot(mx - pos.x, my - pos.y) < pos.r + 14) {
         found = p;
         break;
       }
@@ -429,21 +548,29 @@ export default function HeroSolarSystem() {
     return found;
   }
 
-  function onMove(e) {
+  function handlePointerMove(e) {
     if (!wrapRef.current) return;
     const rect = wrapRef.current.getBoundingClientRect();
     tiltRef.current.tx = (e.clientX - rect.left) / rect.width - 0.5;
     tiltRef.current.ty = (e.clientY - rect.top) / rect.height - 0.5;
-    const found = pickPlanet(e);
+    const found = pickPlanet(e.clientX, e.clientY);
     hoverRef.current = found?.id ?? null;
     setHovered((prev) => (prev?.id === found?.id ? prev : found));
   }
 
-  function onLeave() {
+  function handlePointerLeave() {
     tiltRef.current.tx = 0;
     tiltRef.current.ty = 0;
     hoverRef.current = null;
     setHovered(null);
+  }
+
+  function handlePointerDown(e) {
+    const found = pickPlanet(e.clientX, e.clientY);
+    if (found) {
+      hoverRef.current = found.id;
+      setHovered(found);
+    }
   }
 
   function onLegendEnter(planet) {
@@ -456,45 +583,81 @@ export default function HeroSolarSystem() {
     setHovered(null);
   }
 
+  function onLegendClick(planet) {
+    if (hovered?.id === planet.id) {
+      hoverRef.current = null;
+      setHovered(null);
+    } else {
+      hoverRef.current = planet.id;
+      setHovered(planet);
+    }
+  }
+
   return (
     <div
       className="hero-right hero-solar-system"
-      onMouseLeave={onLeave}
+      onPointerLeave={handlePointerLeave}
     >
       <div
         className="solar-stage"
         ref={wrapRef}
-        onMouseMove={onMove}
+        onPointerMove={handlePointerMove}
+        onPointerDown={handlePointerDown}
         aria-label="Interactive solar system"
       >
         <canvas className="solar-canvas" ref={canvasRef} />
 
         {hovered && (
-          <div className="solar-callout" ref={calloutRef}>
-            <span className="solar-callout-name">{hovered.name}</span>
-            <span className="solar-callout-meta">{hovered.au}</span>
-            <span className="solar-callout-lore">{hovered.lore}</span>
+          <div
+            className="solar-callout"
+            ref={calloutRef}
+            style={{ borderColor: hovered.color + "66" }}
+          >
+            <div className="solar-callout-header">
+              <span
+                className="solar-callout-dot"
+                style={{ background: hovered.color, boxShadow: `0 0 8px ${hovered.color}` }}
+              />
+              <span className="solar-callout-name">{hovered.name}</span>
+              <span className="solar-callout-tag">{hovered.typeTag}</span>
+            </div>
+            <div className="solar-callout-meta">
+              <span>{hovered.au}</span>
+              <span>Orbit {(hovered.speed * 1000).toFixed(1)} km/s</span>
+            </div>
+            <p className="solar-callout-lore">{hovered.lore}</p>
           </div>
         )}
       </div>
 
-      <ul className="solar-legend" aria-label="Worlds in this system">
-        {PLANETS.map((p) => (
-          <li key={p.id}>
-            <button
-              type="button"
-              className={`solar-legend-item${hovered?.id === p.id ? " is-active" : ""}`}
-              onMouseEnter={() => onLegendEnter(p)}
-              onMouseLeave={onLegendLeave}
-              onFocus={() => onLegendEnter(p)}
-              onBlur={onLegendLeave}
-            >
-              <i style={{ background: p.color }} />
-              {p.name}
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className="solar-legend-wrap">
+        <ul className="solar-legend" aria-label="Worlds in this system">
+          {PLANETS.map((p) => {
+            const isActive = hovered?.id === p.id;
+            return (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  className={`solar-legend-item${isActive ? " is-active" : ""}`}
+                  style={{
+                    "--item-color": p.color,
+                    "--item-glow": p.glow,
+                  }}
+                  onMouseEnter={() => onLegendEnter(p)}
+                  onMouseLeave={onLegendLeave}
+                  onFocus={() => onLegendEnter(p)}
+                  onBlur={onLegendLeave}
+                  onClick={() => onLegendClick(p)}
+                >
+                  <i style={{ background: p.color }} />
+                  <span className="legend-planet-name">{p.name}</span>
+                  <span className="legend-planet-au">{p.au}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 }
