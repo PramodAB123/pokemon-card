@@ -3,8 +3,7 @@ import react from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import path from 'node:path'
 
-let fallbackDevCounter = 0
-const devSeenUsers = new Set()
+let fallbackDevUsers = new Set()
 
 function getUpstashCredentials() {
   const candidatePaths = [
@@ -73,39 +72,29 @@ function devApiMiddleware() {
                 username = parsed.username ? String(parsed.username).trim().toLowerCase() : ''
               } catch {}
 
-              let isNew = 1
+              let isNew = false
               if (username) {
                 const saddRes = await fetchRedisDirect('SADD', 'gtc:unique_users', username)
                 if (saddRes !== null && saddRes !== undefined) {
-                  isNew = saddRes === 1 ? 1 : 0
+                  isNew = saddRes === 1
                 } else {
-                  isNew = devSeenUsers.has(username) ? 0 : 1
-                  devSeenUsers.add(username)
+                  isNew = !fallbackDevUsers.has(username)
+                  fallbackDevUsers.add(username)
                 }
               }
 
-              let count = null
-              if (isNew === 1) {
-                count = await fetchRedisDirect('INCR', 'gtc:cards_generated')
-                if (count === null) {
-                  fallbackDevCounter += 1
-                  count = fallbackDevCounter
-                }
+              // Count is strictly derived from unique_users size
+              let count = await fetchRedisDirect('SCARD', 'gtc:unique_users')
+              if (count !== null && count !== undefined) {
+                await fetchRedisDirect('SET', 'gtc:cards_generated', String(count))
               } else {
-                count = await fetchRedisDirect('GET', 'gtc:cards_generated')
-                if (count === null) {
-                  count = fallbackDevCounter
-                }
-              }
-
-              if (count === null || count === undefined) {
-                count = (await fetchRedisDirect('SCARD', 'gtc:unique_users')) || 0
+                count = fallbackDevUsers.size
               }
 
               res.end(
                 JSON.stringify({
                   count: Number(count || 0),
-                  isNew: isNew === 1,
+                  isNew,
                   success: true,
                 })
               )
@@ -115,12 +104,12 @@ function devApiMiddleware() {
 
           // GET /api/counter
           ;(async () => {
-            let count = await fetchRedisDirect('GET', 'gtc:cards_generated')
+            let count = await fetchRedisDirect('SCARD', 'gtc:unique_users')
             if (count === null || count === undefined) {
-              count = await fetchRedisDirect('SCARD', 'gtc:unique_users')
+              count = await fetchRedisDirect('GET', 'gtc:cards_generated')
             }
             if (count === null || count === undefined) {
-              count = fallbackDevCounter
+              count = fallbackDevUsers.size
             }
             res.end(JSON.stringify({ count: Number(count || 0) }))
           })()

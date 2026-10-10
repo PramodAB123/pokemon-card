@@ -11,7 +11,6 @@ async function fetchRedis(command, ...args) {
   const cfg = await getRedisConfig();
   if (!cfg) return null;
   try {
-    // Official Upstash REST POST format: robust against special chars, slashes, and casing
     const res = await fetch(cfg.url, {
       method: "POST",
       headers: {
@@ -51,38 +50,31 @@ export default async function handler(req, res) {
     }
 
     const rawUsername = body.username;
-    let isNew = 1;
+    let isNew = false;
 
     if (rawUsername && typeof rawUsername === "string") {
       const cleanUser = rawUsername.trim().toLowerCase();
-      // SADD returns 1 if newly added, 0 if already existed in the set
+      // SADD returns 1 if newly added, 0 if already existed in set
       const saddResult = await fetchRedis("SADD", "gtc:unique_users", cleanUser);
-      isNew = saddResult === 1 ? 1 : 0;
+      isNew = saddResult === 1;
     }
 
-    let count = null;
-    if (isNew === 1) {
-      count = await fetchRedis("INCR", "gtc:cards_generated");
-    } else {
-      count = await fetchRedis("GET", "gtc:cards_generated");
-    }
-
-    // Fallback if counter was not initialized: use cardinality of unique users set
-    if (count === null || count === undefined) {
-      count = await fetchRedis("SCARD", "gtc:unique_users") || 0;
-    }
+    // Count is ALWAYS strictly derived from unique_users set size
+    const count = (await fetchRedis("SCARD", "gtc:unique_users")) ?? 0;
+    // Keep cards_generated string in sync
+    await fetchRedis("SET", "gtc:cards_generated", String(count));
 
     return res.status(200).json({
-      count: Number(count || 0),
-      isNew: isNew === 1,
+      count: Number(count),
+      isNew,
       success: true,
     });
   }
 
-  // GET request
-  let count = await fetchRedis("GET", "gtc:cards_generated");
+  // GET request: exact count of unique users
+  let count = await fetchRedis("SCARD", "gtc:unique_users");
   if (count === null || count === undefined) {
-    count = await fetchRedis("SCARD", "gtc:unique_users") || 0;
+    count = await fetchRedis("GET", "gtc:cards_generated");
   }
   return res.status(200).json({ count: Number(count || 0) });
 }
