@@ -3,13 +3,7 @@ import { useCounter } from "../lib/useCounter.js";
 
 const RECENT_KEY = "gitstar-explorer-recent";
 
-// Filter out bot/test accounts injected by the CI test suite
-const TEST_PREFIXES = ["qa-test-", "qa-bot-", "cors-qa-", "test-explorer-", "gitstar-test-"];
-const TEST_EXACT = new Set(["cors-qa-user", "test-user", "testuser"]);
-function isTestUser(u) {
-  const lower = u.toLowerCase();
-  return TEST_EXACT.has(lower) || TEST_PREFIXES.some((p) => lower.startsWith(p));
-}
+
 
 function getRecent() {
   try {
@@ -105,7 +99,7 @@ export default function SearchForm({ onSearch, initialError = "" }) {
   const inputRef = useRef(null);
 
   // Live card counter
-  const { count, uniqueUsers, loading: counterLoading } = useCounter();
+  const { count, loading: counterLoading } = useCounter();
   const [displayCount, setDisplayCount] = useState(0);
   const animRef = useRef(null);
   const displayCountRef = useRef(0);
@@ -206,22 +200,7 @@ export default function SearchForm({ onSearch, initialError = "" }) {
         <span className="how-link">subspace grid live ✦</span>
       </div>
 
-      {/* Global Explorers from Redis counter */}
-      {uniqueUsers && uniqueUsers.filter((u) => !isTestUser(u)).length > 0 && (
-        <div className="recent-wrap visible">
-          <span className="recent-label">Subspace Explorers ({uniqueUsers.filter((u) => !isTestUser(u)).length}):</span>
-          <div className="recent-chips">
-            {uniqueUsers
-              .filter((u) => !isTestUser(u))
-              .slice(0, 10)
-              .map((u) => (
-                <button key={u} className="recent-chip" onClick={() => triggerChip(u)}>
-                  @{u}
-                </button>
-              ))}
-          </div>
-        </div>
-      )}
+
 
       {/* Local Recent expeditions */}
       {recent.length > 0 && (
