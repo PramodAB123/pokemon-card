@@ -103,6 +103,7 @@ export default function App() {
       <Background />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/preview-loader" element={<LoadingSection active={true} previewMode={true} />} />
         <Route path="/:username" element={<UserCardPage />} />
         <Route path="*" element={<GenericNotFoundPage />} />
       </Routes>

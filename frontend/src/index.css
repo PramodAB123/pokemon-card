@@ -646,79 +646,557 @@ body {
   box-shadow: 0 0 10px var(--item-color, #fff);
 }
 
-/* ── Warp Loading Section ─────────────────────────────────── */
-.warp-loader-stage {
-  position: relative;
+/* ══════════════════════════════════════════════════════════
+   CINEMATIC LOADING SCREEN (ORBITAL TELEMETRY SPEC)
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Fullscreen Root Container ── */
+.ls-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 360px;
-  height: 280px;
+  overflow: hidden;
+  background: #020409;
+  z-index: 100;
+  user-select: none;
 }
-.warp-canvas {
+
+/* ── Dynamic Canvas (Stars, Curving Earth, Shooting Stars, Asteroids) ── */
+.ls-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 20px;
-  background: #04060c;
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  box-shadow: 0 0 40px rgba(56, 189, 248, 0.2), inset 0 0 20px rgba(0,0,0,0.8);
-}
-.warp-hud-overlay {
-  position: absolute;
-  bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 2;
-}
-.warp-reticle-ring {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #38bdf8;
-  animation: pulseDot 1s ease-in-out infinite;
-}
-.warp-status-text {
-  font-family: 'Orbitron', monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  color: #38bdf8;
-  font-weight: 700;
+  z-index: 1;
+  pointer-events: none;
 }
 
-.loading-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-.loading-step {
+/* ── Content Stage ── */
+.ls-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 5vw, 72px);
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(148, 163, 184, 0.5);
-  transition: color 0.3s;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
+  justify-content: space-between;
+  gap: clamp(24px, 5vw, 80px);
 }
-.loading-step.active {
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.3);
+
+/* ── Left Column: Mission Checklist & Telemetry ── */
+.ls-left-column {
+  flex: 1.1;
+  max-width: 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.5vh, 26px);
+  z-index: 2;
+}
+
+/* Status / telemetry badge row */
+.ls-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ls-telemetry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 9999px;
   background: rgba(56, 189, 248, 0.08);
-  animation: stepFadeIn 0.3s ease forwards;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  font-family: 'Orbitron', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.15);
+  backdrop-filter: blur(8px);
 }
-.loading-step.done {
-  color: rgba(148, 163, 184, 0.7);
-  text-decoration: line-through;
-}
-.step-dot {
-  width: 7px; height: 7px;
+
+.ls-live-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: currentColor;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: ls-live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ls-live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.ls-system-code {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: rgba(148, 163, 184, 0.6);
+}
+
+/* Title block */
+.ls-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ls-main-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.04;
+  margin: 0;
+}
+
+.ls-word-launch {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(32px, 5.2vw, 64px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #f8fafc;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.25), 0 0 80px rgba(56, 189, 248, 0.35);
+}
+
+.ls-word-mission {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(32px, 5.2vw, 64px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  background: linear-gradient(90deg, #38bdf8 0%, #818cf8 45%, #c084fc 80%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200%;
+  animation: ls-mission-shimmer 4s linear infinite;
+  filter: drop-shadow(0 0 35px rgba(129, 140, 248, 0.45));
+}
+
+@keyframes ls-mission-shimmer {
+  0% { background-position: 0%; }
+  100% { background-position: 200%; }
+}
+
+.ls-tagline {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(14px, 1.4vw, 17px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: rgba(148, 163, 184, 0.85);
+  margin: 6px 0 0 0;
+}
+
+/* Steps checklist */
+.ls-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Step Card (Pill) */
+.ls-step-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 24px;
+  border-radius: 9999px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+/* Pending step card */
+.ls-step-card--pending {
+  background: rgba(6, 16, 32, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.ls-step-card--pending .ls-step-text {
+  color: rgba(148, 163, 184, 0.65);
+}
+
+.ls-step-card--pending .ls-step-icon {
+  color: rgba(148, 163, 184, 0.5);
+}
+
+/* Active step card (Scanning) */
+.ls-step-card--active {
+  background: linear-gradient(90deg, rgba(14, 116, 144, 0.42) 0%, rgba(3, 38, 70, 0.76) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.9);
+  box-shadow: 
+    0 0 28px rgba(56, 189, 248, 0.4),
+    inset 0 0 16px rgba(56, 189, 248, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateX(4px);
+  animation: ls-active-glow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes ls-active-glow {
+  0% { box-shadow: 0 0 24px rgba(56, 189, 248, 0.35), inset 0 0 14px rgba(56, 189, 248, 0.14); }
+  100% { box-shadow: 0 0 38px rgba(56, 189, 248, 0.6), inset 0 0 22px rgba(56, 189, 248, 0.25); }
+}
+
+.ls-step-card--active .ls-step-text {
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+}
+
+.ls-step-card--active .ls-step-icon {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.7));
+}
+
+/* Light sweep across active pill */
+.ls-step-card--active::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  animation: ls-light-sweep 2.8s infinite;
+  pointer-events: none;
+}
+
+@keyframes ls-light-sweep {
+  0% { left: -100%; }
+  50%, 100% { left: 200%; }
+}
+
+/* Done step card */
+.ls-step-card--done {
+  background: linear-gradient(90deg, rgba(6, 78, 59, 0.38) 0%, rgba(2, 44, 34, 0.7) 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.7);
+  box-shadow: 
+    0 0 24px rgba(16, 185, 129, 0.25),
+    inset 0 0 14px rgba(16, 185, 129, 0.14);
+}
+
+.ls-step-card--done .ls-step-text {
+  color: #34d399;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+}
+
+.ls-step-card--done .ls-step-icon {
+  color: #10b981;
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.7));
+}
+
+/* Clean icon element matching reference image */
+.ls-step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.35s ease;
+  line-height: 1;
+}
+
+.ls-step-text {
+  flex: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(14.5px, 1.35vw, 17px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  transition: color 0.35s ease;
+}
+
+.ls-step-status {
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
 }
-.loading-step.active .step-dot { animation: pulseDot 1s ease-in-out infinite; }
+
+.ls-cursor-bar {
+  display: inline-block;
+  width: 5px;
+  height: 15px;
+  background: #38bdf8;
+  border-radius: 2px;
+  box-shadow: 0 0 10px #38bdf8;
+  animation: ls-cursor-blink 0.75s step-end infinite;
+}
+
+@keyframes ls-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── Right Column: The Reaching Astronaut ── */
+.ls-right-column {
+  flex: 1.25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.ls-astronaut-stage {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tech radar rings around astronaut */
+.ls-radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ls-radar-ring-1 {
+  width: clamp(280px, 36vw, 420px);
+  height: clamp(280px, 36vw, 420px);
+  border: 1.5px dashed rgba(56, 189, 248, 0.28);
+  animation: ls-radar-spin 24s linear infinite;
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.1);
+}
+
+.ls-radar-ring-2 {
+  width: clamp(360px, 46vw, 520px);
+  height: clamp(360px, 46vw, 520px);
+  border: 1px dotted rgba(129, 140, 248, 0.22);
+  animation: ls-radar-spin 36s linear infinite reverse;
+}
+
+.ls-radar-ring-3 {
+  width: clamp(440px, 56vw, 620px);
+  height: clamp(440px, 56vw, 620px);
+  border: 1px solid rgba(56, 189, 248, 0.08);
+}
+
+@keyframes ls-radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Visor and core back-glow */
+.ls-core-glow {
+  position: absolute;
+  width: clamp(260px, 32vw, 380px);
+  height: clamp(260px, 32vw, 380px);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(56, 189, 248, 0.26) 0%,
+    rgba(99, 102, 241, 0.14) 40%,
+    transparent 70%
+  );
+  filter: blur(32px);
+  pointer-events: none;
+  animation: ls-core-pulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes ls-core-pulse {
+  0% { transform: scale(0.92); opacity: 0.6; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Astronaut cutout (Reaching forward) */
+.ls-astro-cutout {
+  width: 100%;
+  max-width: 550px;
+  height: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 5;
+  user-select: none;
+  pointer-events: none;
+  filter: 
+    brightness(1.05) contrast(1.04)
+    drop-shadow(0 0 35px rgba(56, 189, 248, 0.42))
+    drop-shadow(0 20px 45px rgba(0, 0, 0, 0.85));
+  animation: ls-astronaut-zerog 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes ls-astronaut-zerog {
+  0% {
+    transform: translateY(0px) rotate(-1.5deg) scale(1);
+  }
+  33% {
+    transform: translateY(-18px) rotate(1deg) scale(1.02);
+  }
+  66% {
+    transform: translateY(-8px) rotate(-2deg) scale(1.008);
+  }
+  100% {
+    transform: translateY(0px) rotate(-1.5deg) scale(1);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ══════════════════════════════════════════════════════════ */
+
+/* Tablet & Mobile Breakpoint */
+@media (max-width: 900px) {
+  .ls-root {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .ls-container {
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .ls-left-column {
+    max-width: 440px;
+    width: 100%;
+    gap: 10px;
+    align-items: center;
+    text-align: center;
+    flex: none;
+  }
+
+  .ls-badge-row {
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .ls-main-title {
+    align-items: center;
+  }
+
+  .ls-word-launch,
+  .ls-word-mission {
+    font-size: clamp(24px, 6.5vw, 36px);
+  }
+
+  .ls-tagline {
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  .ls-steps-list {
+    gap: 8px;
+  }
+
+  .ls-step-card {
+    padding: 9px 18px;
+    gap: 12px;
+  }
+
+  .ls-step-text {
+    font-size: 13.5px;
+    text-align: left;
+  }
+
+  .ls-right-column {
+    flex: none;
+    width: 100%;
+    max-width: 240px;
+  }
+
+  .ls-astronaut-stage {
+    max-width: 220px;
+    aspect-ratio: auto;
+    height: clamp(140px, 22vh, 185px);
+  }
+
+  .ls-astro-cutout {
+    max-width: 200px;
+    max-height: clamp(130px, 20vh, 175px);
+  }
+
+  .ls-radar-ring-1 {
+    width: 170px;
+    height: 170px;
+  }
+
+  .ls-radar-ring-2 {
+    width: 210px;
+    height: 210px;
+  }
+
+  .ls-radar-ring-3 {
+    display: none;
+  }
+}
+
+/* Small Mobile Breakpoint (< 480px) */
+@media (max-width: 480px) {
+  .ls-container {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .ls-astronaut-stage {
+    height: clamp(120px, 18vh, 150px);
+  }
+
+  .ls-astro-cutout {
+    max-width: 165px;
+    max-height: clamp(110px, 17vh, 140px);
+  }
+
+  .ls-word-launch,
+  .ls-word-mission {
+    font-size: 26px;
+    letter-spacing: 0.1em;
+  }
+
+  .ls-tagline {
+    font-size: 12px;
+  }
+
+  .ls-steps-list {
+    gap: 7px;
+  }
+
+  .ls-step-card {
+    padding: 8px 14px;
+    gap: 10px;
+  }
+
+  .ls-step-text {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .ls-telemetry-badge {
+    font-size: 9px;
+    padding: 3px 10px;
+  }
+
+  .ls-system-code {
+    display: none;
+  }
+}
+
+/* Utility keyframes */
+@keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.6} }
 @keyframes stepFadeIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
 
 /* ══════════════════════════════════════════════════════════
