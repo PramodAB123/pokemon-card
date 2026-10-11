@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useCounter } from "../lib/useCounter.js";
 
 const RECENT_KEY = "gitstar-explorer-recent";
@@ -97,6 +98,18 @@ export default function SearchForm({ onSearch, initialError = "" }) {
   const [recent, setRecent] = useState([]);
   const canvasRef = useRef(null);
   const inputRef = useRef(null);
+
+  const [showHowToUse, setShowHowToUse] = useState(false);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    if (!showHowToUse) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setShowHowToUse(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showHowToUse]);
 
   // Live card counter
   const { count, loading: counterLoading } = useCounter();
@@ -197,8 +210,117 @@ export default function SearchForm({ onSearch, initialError = "" }) {
         </span>
         <span className="counter-label">explorer cards forged</span>
         <span className="counter-sep">|</span>
-        <span className="how-link">subspace grid live ✦</span>
+        <button
+          type="button"
+          className="how-use-trigger"
+          onClick={() => setShowHowToUse(true)}
+          title="Click to view How to Use"
+        >
+          <span className="how-use-dot" />
+          <span>subspace grid live</span>
+          <span className="how-use-badge">How to Use ✦</span>
+        </button>
       </div>
+
+      {/* How to Use Modal Popup */}
+      {showHowToUse &&
+        createPortal(
+          <div
+            className="how-modal-overlay"
+            onClick={() => setShowHowToUse(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="howToUseTitle"
+          >
+            <div className="how-modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="how-modal-header">
+                <div className="how-modal-title-wrap">
+                  <span className="how-modal-tag">EXPEDITION MANUAL // PROTOCOL v2.4</span>
+                  <h3 id="howToUseTitle" className="how-modal-title">How To Use GitStar</h3>
+                </div>
+                <button
+                  type="button"
+                  className="how-modal-close"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowHowToUse(false);
+                  }}
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p className="how-modal-desc">
+                Transform your GitHub telemetry into an interstellar explorer trading card with live power ratings and fleet ranks.
+              </p>
+
+              <div className="how-steps-grid">
+                <div className="how-step-item">
+                  <div className="how-step-badge">01</div>
+                  <div className="how-step-content">
+                    <h4 className="how-step-heading">Enter GitHub Handle</h4>
+                    <p className="how-step-text">
+                      Type any public GitHub username in the subspace radar bar, or click any pilot from the quick scout examples.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="how-step-item">
+                  <div className="how-step-badge">02</div>
+                  <div className="how-step-content">
+                    <h4 className="how-step-heading">Initiate Orbital Scan</h4>
+                    <p className="how-step-text">
+                      Press Enter or click <strong>Launch Expedition</strong>. Orbital sensors analyze commits, starbases, pull requests, and telemetry.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="how-step-item">
+                  <div className="how-step-badge">03</div>
+                  <div className="how-step-content">
+                    <h4 className="how-step-heading">Forge & Share Your Card</h4>
+                    <p className="how-step-text">
+                      Interact with your 3D holo-card tilt, check your Fleet Rank & reactor core score, and copy your transmission coordinates!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="how-tip-box">
+                <span className="how-tip-icon">✦</span>
+                <p className="how-tip-text">
+                  <strong>PILOT TIP:</strong> High commit activity and star counts unlock elite Fleet Admiral ranks and rare solar system designations.
+                </p>
+              </div>
+
+              <div className="how-modal-actions">
+                <button
+                  type="button"
+                  className="how-modal-action-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowHowToUse(false);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  Start Scouting 🚀
+                </button>
+                <button
+                  type="button"
+                  className="how-modal-cancel-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowHowToUse(false);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
 
 
