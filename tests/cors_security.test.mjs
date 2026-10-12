@@ -35,3 +35,12 @@ export async function runCorsSecurityTests(base) {
   const allowOrigin = postRes.headers.get("access-control-allow-origin");
   console.log(`  ✓ TC-CORS-02 Passed: Cross-origin request succeeded with Access-Control-Allow-Origin: ${allowOrigin || '*'}`);
 }
+
+if (process.argv[1] && /cors_security\.test\.mjs$/i.test(process.argv[1])) {
+  const target = process.argv[2] || "http://localhost:8000";
+  runCorsSecurityTests(target.replace(/\/+$/, "")).catch((err) => {
+    console.error(`\n❌ Suite error: ${err.message}`);
+    process.exit(1);
+  });
+}
+

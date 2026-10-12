@@ -27,3 +27,12 @@ export async function runRateLimitTests(base) {
     console.log(`  ✓ Rate Limit Middleware Checked (Unrestricted Dev Channel)`);
   }
 }
+
+if (process.argv[1] && /rate_limit\.test\.mjs$/i.test(process.argv[1])) {
+  const target = process.argv[2] || "http://localhost:8000";
+  runRateLimitTests(target.replace(/\/+$/, "")).catch((err) => {
+    console.error(`\n❌ Suite error: ${err.message}`);
+    process.exit(1);
+  });
+}
+

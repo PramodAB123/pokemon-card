@@ -52,3 +52,12 @@ export async function runApiCounterTests(base) {
   }
   console.log(`  ✓ TC-BE-04 Passed: Concurrent calls both succeeded cleanly (test_mode)`);
 }
+
+if (process.argv[1] && /api_counter\.test\.mjs$/i.test(process.argv[1])) {
+  const target = process.argv[2] || "http://localhost:8000";
+  runApiCounterTests(target.replace(/\/+$/, "")).catch((err) => {
+    console.error(`\n❌ Suite error: ${err.message}`);
+    process.exit(1);
+  });
+}
+

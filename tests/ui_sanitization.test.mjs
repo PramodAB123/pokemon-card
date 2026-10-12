@@ -38,3 +38,12 @@ export async function runUiSanitizationTests(base) {
   // 3. TC-404-02: Catch-All Navigation Verification
   console.log(`  ✓ TC-404-02 Passed: Client-side router catch-all route configured in App.jsx`);
 }
+
+if (process.argv[1] && /ui_sanitization\.test\.mjs$/i.test(process.argv[1])) {
+  const target = process.argv[2] || "http://localhost:8000";
+  runUiSanitizationTests(target.replace(/\/+$/, "")).catch((err) => {
+    console.error(`\n❌ Suite error: ${err.message}`);
+    process.exit(1);
+  });
+}
+

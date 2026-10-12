@@ -5,11 +5,15 @@ import path from 'node:path'
 
 let fallbackDevUsers = new Set()
 
+const currentDir = typeof import.meta.dirname !== 'undefined'
+  ? import.meta.dirname
+  : path.dirname(new URL(import.meta.url).pathname);
+
 function getUpstashCredentials() {
   const candidatePaths = [
-    path.resolve(__dirname, '../.env.local'),
-    path.resolve(__dirname, '.env.local'),
-    path.resolve(__dirname, '../.env'),
+    path.resolve(currentDir, '../.env.local'),
+    path.resolve(currentDir, '.env.local'),
+    path.resolve(currentDir, '../.env'),
   ]
   for (const p of candidatePaths) {
     if (fs.existsSync(p)) {
@@ -56,9 +60,26 @@ function devApiMiddleware() {
     name: 'dev-api-fallback',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
+        if (req.url && req.url.startsWith('/api/health')) {
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Access-Control-Allow-Origin', '*')
+          res.end(JSON.stringify({ status: 'ok', upstash: getUpstashCredentials() ? 'ok' : 'unconfigured', version: '1.0.0' }))
+          return
+        }
+
         if (req.url && req.url.startsWith('/api/counter')) {
           res.setHeader('Content-Type', 'application/json')
           res.setHeader('Access-Control-Allow-Origin', '*')
+          res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+          res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Test-Mode')
+
+          if (req.method === 'OPTIONS') {
+            res.statusCode = 204
+            res.end()
+            return
+          }
+
+          const isTestMode = req.headers['x-test-mode'] === 'true'
 
           if (req.method === 'POST') {
             let bodyStr = ''
@@ -66,6 +87,20 @@ function devApiMiddleware() {
               bodyStr += chunk
             })
             req.on('end', async () => {
+              if (isTestMode) {
+                res.end(
+                  JSON.stringify({
+                    count: 1,
+                    cards_generated: 1,
+                    unique_users: [],
+                    isNew: true,
+                    success: true,
+                    _test_mode: true,
+                  })
+                )
+                return
+              }
+
               let username = ''
               try {
                 const parsed = JSON.parse(bodyStr)
@@ -108,6 +143,18 @@ function devApiMiddleware() {
           }
 
           // GET /api/counter
+          if (isTestMode) {
+            res.end(
+              JSON.stringify({
+                count: 0,
+                cards_generated: 0,
+                unique_users: [],
+                _test_mode: true,
+              })
+            )
+            return
+          }
+
           ;(async () => {
             let count = await fetchRedisDirect('SCARD', 'gtc:unique_users')
             let uniqueUsers = await fetchRedisDirect('SMEMBERS', 'gtc:unique_users')
