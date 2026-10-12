@@ -2369,14 +2369,14 @@ body {
     max-width: 520px;
     margin: 0 auto;
   }
-  .repos-grid { grid-template-columns: 1fr; }
+.repos-grid { grid-template-columns: 1fr; }
 
   /* Hide decorative side panels on tablet */
   .side-panel.left-panel,
   .side-panel.right-panel {
     display: none;
   }
-}
+ }
 
 /* ── Mobile Portrait ──────────────────────────────────────── */
 @media (max-width: 560px) {
@@ -2413,12 +2413,12 @@ body {
   .scout-input {
     font-size: 14px;
   }
-.scout-btn {
-     padding: 9px 12px;
-     font-size: 10.5px;
-     letter-spacing: 0.05em;
-     border-radius: 7px;
-   }
+  .scout-btn {
+    padding: 9px 12px;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    border-radius: 7px;
+  }
 
   /* Quick examples: wrap to 2 per row */
   .quick-examples {
@@ -2500,12 +2500,14 @@ body {
 
   /* Result page */
   .result-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
     padding: 16px 12px;
-    gap: 14px;
     max-width: 100%;
     overflow-x: hidden;
   }
   .card-column {
+    order: 0;
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
@@ -2534,12 +2536,20 @@ body {
     box-sizing: border-box;
   }
 
+  /* Show side panels on mobile - stacked below card */
+  .side-panel.left-panel,
+  .side-panel.right-panel {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+  }
+
   /* Repos */
   .repos-section {
     padding: 0 12px 40px;
   }
 
-/* 404 page compact */
+  /* 404 page compact */
   .not-found-card {
     padding: 24px 18px;
     border-radius: 18px;
@@ -2555,55 +2565,44 @@ body {
   .dossier-key {
     min-width: 100px;
   }
- }
 
- /* ── Mobile: Fix handle alignment & font ────────────────────── */
- @media (max-width: 560px) {
-   .sm-trainer-handle {
-     font-size: 10px;
-     letter-spacing: 0.01em;
-     white-space: nowrap;
-     overflow: hidden;
-     text-overflow: ellipsis;
-     max-width: 100%;
-   }
-   
-   .sm-trainer-name {
-     font-size: 13px;
-   }
-   
-   .sm-trainer-bio {
-     font-size: 11px;
-   }
-   
-   /* Counter bar: wrap to 2 lines if needed */
-   .counter-bar {
-     font-size: 12px;
-     gap: 6px 8px;
-     flex-wrap: wrap;
-   }
-   .counter-sep { display: none; }
-   .how-link { font-size: 11px; }
- }
+  /* Mobile: Fix handle alignment & font */
+  .sm-trainer-handle {
+    font-size: 10px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
 
- /* ── Small Mobile (≤ 380px) ───────────────────────────────── */
- @media (max-width: 380px) {
-   .hero-layout {
-     padding: 10px 10px 20px;
-     gap: 16px;
-   }
-   .hero-headline {
-     font-size: clamp(30px, 10vw, 40px);
-   }
-   .scout-btn {
-     font-size: 10px;
-     padding: 8px 10px;
-   }
-   .solar-legend {
-     grid-template-columns: repeat(2, 1fr);
-   }
-   .solar-legend li:last-child {
-     grid-column: 1 / -1;
+  .sm-trainer-name {
+    font-size: 13px;
+  }
+
+.sm-trainer-bio {
+    font-size: 11px;
+  }
+}
+
+/* ── Small Mobile (≤ 380px) ───────────────────────────────── */
+@media (max-width: 380px) {
+  .hero-layout {
+    padding: 10px 10px 20px;
+    gap: 16px;
+  }
+  .hero-headline {
+    font-size: clamp(30px, 10vw, 40px);
+  }
+  .scout-btn {
+    font-size: 10px;
+    padding: 8px 10px;
+  }
+  .solar-legend {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .solar-legend li:last-child {
+    grid-column: 1 / -1;
   }
   .solar-legend-item {
     font-size: 10px;
