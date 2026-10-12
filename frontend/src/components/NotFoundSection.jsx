@@ -100,10 +100,17 @@ export default function NotFoundSection({ username, onTryAnother }) {
   return (
     <section className="not-found-section" id="notFoundSection">
       <div className="not-found-card">
-        {/* Radar Scanner Visual */}
-        <div className="not-found-radar-wrap">
-          <canvas className="not-found-radar-canvas" ref={canvasRef} />
-          <div className="radar-core-icon">🛸</div>
+        {/* Main Illustration - Astronaut lost in space */}
+        <div className="not-found-illustration-wrap">
+          <div className="astronaut-illustration">
+            <img 
+              src="/astronaut-reaching.png" 
+              alt="Lost astronaut floating in space" 
+              className="astronaut-img"
+              draggable="false"
+              loading="eager"
+            />
+          </div>
         </div>
 
         {/* Status Chip */}
