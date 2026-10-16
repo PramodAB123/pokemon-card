@@ -127,7 +127,7 @@ When viewing your card on desktop, move your mouse over the trading card to trig
 ### Sharing Your Card
 Every explorer card has a direct shareable URL:
 ```text
-https://pokitrainer.vercel.app/YOUR_GITHUB_USERNAME
+https://gitastro.vercel.app/YOUR_GITHUB_USERNAME
 ```
 * Click **Transmit Coordinates ✦** at the bottom of your card to copy your unique subspace link directly to your clipboard.
 * Share your link on social media, developer forums, or your GitHub profile README.
@@ -145,5 +145,5 @@ If you enter a callsign that does not exist in the galactic GitHub registry:
 
 <p align="center">
   <b>Explore the stars. Deploy your code. Collect your card ✦</b><br>
-  <a href="https://pokitrainer.vercel.app"><b>Open Live Application →</b></a>
+  <a href="https://gitastro.vercel.app"><b>Open Live Application →</b></a>
 </p>
