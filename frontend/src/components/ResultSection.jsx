@@ -166,9 +166,8 @@ export default function ResultSection({ d, onTryAnother }) {
         </div>
       </div>
 
-      {/* Orbital Starbases Repos Grid */}
-      <div className="repos-section">
-        <div className="repos-section-title">Orbital Starbases & Repositories</div>
+      {/* Orbital Starbases Repos Flowchart */}
+      <div className="repos-section" id="reposFlowchartSection">
         <ReposGrid d={d} />
       </div>
     </section>

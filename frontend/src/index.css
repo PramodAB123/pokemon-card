@@ -2118,94 +2118,884 @@ body {
 /* ══════════════════════════════════════════════════════════
    ORBITAL STARBASES & REPOSITORIES (REPOS GRID)
    ══════════════════════════════════════════════════════════ */
-.repos-section { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
-.repos-section-title {
-  font-family: 'Bebas Neue', monospace;
-  font-size: 30px;
-  letter-spacing: 0.06em;
-  color: #eef2ff;
-  margin-bottom: 20px;
+.repos-section { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── Professional Interstellar Starbase Flowchart Deck ── */
+.starbase-flowchart-deck {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  position: relative;
 }
-.repos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+/* ── Flowchart Top HUD Banner & Control Ribbon ── */
+.flowchart-hud-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 16px;
+  background: rgba(10, 16, 31, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 16px;
+  padding: 16px 24px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(56, 189, 248, 0.05);
+  position: relative;
 }
-.repo-card {
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(56, 189, 248, 0.15);
+
+.flowchart-hud-banner::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 30px; right: 30px; height: 1px;
+  background: linear-gradient(90deg, transparent, #00F0FF, #818CF8, transparent);
+}
+
+.flowchart-banner-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.banner-title-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-status-blinker {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00F0FF;
+  box-shadow: 0 0 10px #00F0FF, 0 0 20px #00F0FF;
+  animation: terminalLedBlink 1.8s ease-in-out infinite;
+}
+
+.flowchart-main-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  margin: 0;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+.flowchart-sub-telemetry {
+  font-family: 'Rajdhani', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.7);
+  letter-spacing: 0.12em;
+  margin: 0;
+}
+
+/* Global Telemetry Chips */
+.flowchart-banner-center {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 16px;
+}
+
+.telemetry-stat-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.6);
+}
+
+.stat-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #E2E8F0;
+}
+
+.stat-value.cyan-glow {
+  color: #00F0FF;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+}
+
+.stat-value.amber-glow {
+  color: #FBBF24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}
+
+.stat-value.purple-glow {
+  color: #C084FC;
+  text-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
+}
+
+.telemetry-stat-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* View Switcher */
+.flowchart-view-toggle {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: rgba(148, 163, 184, 0.7);
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.view-toggle-btn:hover {
+  color: #FFFFFF;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.view-toggle-btn.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(99, 102, 241, 0.3));
+  border: 1px solid #00F0FF;
+  color: #FFFFFF;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+}
+
+.toggle-icon {
+  font-size: 12px;
+}
+
+/* ── SCHEMATIC FLOWCHART CANVAS ── */
+.schematic-flowchart-canvas {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  padding: 12px 0;
+}
+
+/* Flowchart Stage Box */
+.flowchart-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+.stage-header-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border-left: 3px solid #00F0FF;
+  border-radius: 0 8px 8px 0;
+  width: fit-content;
+}
+
+.stage-index {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #00F0FF;
+  padding: 2px 6px;
+  background: rgba(0, 240, 255, 0.15);
+  border-radius: 4px;
+}
+
+.stage-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #E2E8F0;
+}
+
+.stage-flow-indicator {
+  font-family: 'Rajdhani', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.55);
+}
+
+/* Stage Rows */
+.tier-nodes-row {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
+.tier-single {
+  grid-template-columns: minmax(320px, 480px);
+  justify-content: center;
+}
+
+.tier-double {
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.tier-triple {
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+}
+
+/* ── CONDUIT JUNCTION BUS ── */
+.flowchart-conduit-junction {
+  position: relative;
+  width: 100%;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: -4px 0;
+}
+
+.conduit-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.5));
+}
+
+.conduit-wire {
+  stroke-dasharray: 8 6;
+  animation: conduitPulse 2.2s linear infinite;
+}
+
+.conduit-wire.trunk { stroke-dasharray: 6 4; animation-duration: 1.5s; }
+.conduit-wire.branch-left { animation-delay: 0.3s; }
+.conduit-wire.branch-right { animation-delay: 0.3s; }
+.conduit-wire.drop-1 { animation-delay: 0.2s; }
+.conduit-wire.drop-2 { animation-delay: 0.4s; }
+.conduit-wire.drop-3 { animation-delay: 0.6s; }
+
+.junction-chip {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 16, 31, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.5);
+  padding: 4px 14px;
+  border-radius: 100px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+}
+
+.junction-chip.edge-chip {
+  border-color: rgba(192, 132, 252, 0.6);
+  box-shadow: 0 0 16px rgba(192, 132, 252, 0.25);
+}
+
+.junction-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00F0FF;
+  box-shadow: 0 0 8px #00F0FF;
+  animation: terminalLedBlink 1.4s infinite;
+}
+
+.junction-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #E2E8F0;
+}
+
+.junction-stat {
+  font-family: 'Rajdhani', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #38BDF8;
+  letter-spacing: 0.08em;
+}
+
+/* ── TACTICAL MATRIX GRID ── */
+.tactical-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 22px;
+  width: 100%;
+}
+
+/* ── STARBASE NODE CARD (HYPER-DETAILED FLOWCHART NODE) ── */
+.starbase-node-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.starbase-node-card.is-node-active {
+  z-index: 10;
+  transform: translateY(-4px) scale(1.015);
+}
+
+/* Sockets on Top & Bottom */
+.flow-socket {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(148, 163, 184, 0.5);
+  padding: 2px 8px;
+  z-index: 3;
+}
+
+.socket-pin {
+  width: 7px;
+  height: 7px;
+  background: #0F172A;
+  border: 1.5px solid var(--card-accent, #38BDF8);
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--card-accent, #38BDF8);
+}
+
+.socket-top { margin-bottom: -1px; }
+.socket-bottom { margin-top: -1px; }
+
+/* Main Card Inner Container */
+.starbase-card-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 15, 30, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.18);
   border-radius: 14px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  backdrop-filter: blur(14px);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.starbase-card-inner:hover {
+  border-color: var(--card-accent, #00F0FF);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 28px var(--accent-glow, rgba(0, 240, 255, 0.3));
+}
+
+/* Sci-Fi HUD Corner Brackets */
+.hud-corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-color: var(--card-accent, #38BDF8);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.starbase-card-inner:hover .hud-corner {
+  opacity: 1;
+}
+
+.hud-corner.top-left { top: 3px; left: 3px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.hud-corner.top-right { top: 3px; right: 3px; border-top: 1.5px solid; border-right: 1.5px solid; }
+.hud-corner.bottom-left { bottom: 3px; left: 3px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+.hud-corner.bottom-right { bottom: 3px; right: 3px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+
+/* Node Header Telemetry */
+.node-schematic-header {
   display: flex;
-  flex-direction: column;
-  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-.repo-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--card-accent, rgba(56, 189, 248, 0.6));
-  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.5), 0 0 24px color-mix(in srgb, var(--card-accent, #38BDF8) 25%, transparent);
+
+.node-id-cluster {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
-.repo-outpost-bay {
-  height: 84px;
+
+.node-pulse-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.node-badge-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #FFFFFF;
+}
+
+.node-tier-pill {
+  font-family: 'Rajdhani', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(148, 163, 184, 0.7);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.node-telemetry-stamp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hex-stamp {
+  font-family: 'Rajdhani', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(148, 163, 184, 0.6);
+}
+
+.sector-tag {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #00F0FF;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ── Gyroscope Holographic Visual Bay ── */
+.starbase-gyro-bay {
+  height: 94px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.gyro-grid-crosshair {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.4;
+}
+
+.gyro-assembly {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gyro-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ring-outer {
+  width: 58px;
+  height: 58px;
+  border: 1.5px dashed;
+  animation: gyroRotateClockwise 14s linear infinite;
+}
+
+.ring-mid {
+  width: 66px;
+  height: 24px;
+  border: 1.2px solid;
+  border-radius: 100px;
+  animation: gyroRotateCounter 9s linear infinite;
+  opacity: 0.85;
+}
+
+.gyro-sweep {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(0, 240, 255, 0.28) 360deg);
+  animation: gyroRotateClockwise 4s linear infinite;
+}
+
+.gyro-core {
+  width: 14px;
+  height: 14px;
+  transform: rotate(45deg);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 2;
+  border-radius: 2px;
+  animation: radarPulseGlow 3s ease-in-out infinite;
 }
-.outpost-visual {
-  width: 80px; height: 50px;
+
+.gyro-core-beacon {
+  width: 5px;
+  height: 5px;
+  background: #FFFFFF;
+  border-radius: 50%;
+}
+
+.gyro-hud-overlay {
+  position: absolute;
+  bottom: 4px; left: 10px; right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Rajdhani', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.5);
+  letter-spacing: 0.1em;
+}
+
+/* Card Body */
+.starbase-card-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.starbase-title-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 8px;
 }
-.outpost-svg { width: 100%; height: 100%; }
-.repo-level-tag {
-  position: absolute;
-  top: 8px; right: 10px;
+
+.starbase-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.starbase-card-inner:hover .starbase-name {
+  color: var(--card-accent, #00F0FF);
+  text-shadow: 0 0 10px var(--card-accent, rgba(0, 240, 255, 0.5));
+}
+
+.starbase-link-icon {
+  font-size: 13px;
+  color: rgba(148, 163, 184, 0.5);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.starbase-card-inner:hover .starbase-link-icon {
+  transform: translate(2px, -2px);
+  color: #00F0FF;
+}
+
+/* ── Segmented Cybernetic Power / Integrity Meter ── */
+.cyber-integrity-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.meter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meter-label {
   font-family: 'Orbitron', monospace;
   font-size: 8px;
-  font-weight: 700;
-  color: rgba(226, 232, 240, 0.6);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.6);
+}
+
+.meter-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 8.5px;
+  font-weight: 800;
   letter-spacing: 0.08em;
 }
 
-.repo-card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.repo-card-header { display: flex; justify-content: space-between; align-items: center; }
-.repo-name { font-size: 13px; font-weight: 700; color: #eef2ff; font-family: 'Orbitron', monospace; }
-
-.repo-shield-row { display: flex; align-items: center; gap: 7px; }
-.shield-label { font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700; color: rgba(148, 163, 184, 0.6); letter-spacing: 0.08em; }
-.shield-bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; }
-.shield-bar-fill { height: 100%; border-radius: 100px; transition: width 0.8s ease; }
-.shield-num { font-family: 'Orbitron', monospace; font-size: 9px; color: rgba(148, 163, 184, 0.6); }
-
-.repo-desc { font-size: 11px; color: rgba(148, 163, 184, 0.7); line-height: 1.5; flex: 1; }
-.repo-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: auto; }
-.repo-lang-tag {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 10px; font-weight: 600;
-  padding: 3px 8px; border-radius: 100px; border: 1px solid;
+.meter-segments {
+  display: flex;
+  gap: 3px;
+  height: 5px;
+  width: 100%;
 }
-.lang-dot { width: 6px; height: 6px; border-radius: 50%; }
-.repo-stars, .repo-forks, .repo-commits, .repo-updated {
-  font-size: 10px; color: rgba(148, 163, 184, 0.6);
+
+.meter-seg {
+  flex: 1;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.meter-seg.active {
+  background: var(--seg-color, #00F0FF);
+  box-shadow: 0 0 8px var(--seg-glow, rgba(0, 240, 255, 0.7));
+}
+
+/* Sanitized Description */
+.starbase-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  color: rgba(226, 232, 240, 0.75);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Telemetry Footer */
+.starbase-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.starbase-lang-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Rajdhani', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 100px;
+  border: 1px solid;
+}
+
+.lang-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.telemetry-pill {
   font-family: 'Orbitron', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.85);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
-.repos-empty {
-  grid-column: 1/-1;
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  padding: 40px;
+
+.telemetry-pill.commits-pulse {
+  color: #FBBF24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.telemetry-pill.muted {
+  font-family: 'Rajdhani', monospace;
+  font-size: 10px;
+  color: rgba(148, 163, 184, 0.5);
+}
+
+/* ── Flowchart Baseline Footer Telemetry ── */
+.flowchart-footer-telemetry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(10, 16, 31, 0.6);
   border: 1px dashed rgba(56, 189, 248, 0.2);
-  border-radius: 14px;
-  color: rgba(148, 163, 184, 0.6);
-  font-size: 14px;
+  border-radius: 8px;
+  font-family: 'Rajdhani', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.65);
 }
-.repos-empty-icon { font-size: 28px; }
+
+.telemetry-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminal-prompt {
+  color: #00F0FF;
+  font-weight: 800;
+}
+
+.blinking-cursor {
+  color: #00F0FF;
+  animation: terminalLedBlink 1s infinite;
+}
+
+/* ── Empty State ── */
+.repos-empty-schematic {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px 24px;
+  background: rgba(10, 16, 31, 0.7);
+  border: 1px dashed rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+}
+
+.empty-radar-ping {
+  font-size: 36px;
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.4));
+}
+
+.empty-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.empty-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #E2E8F0;
+}
+
+.empty-sub {
+  font-family: 'Rajdhani', monospace;
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.65);
+}
+
+/* ── Keyframe Animations ── */
+@keyframes gyroRotateClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gyroRotateCounter {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes radarPulseGlow {
+  0%, 100% {
+    transform: rotate(45deg) scale(0.92);
+    box-shadow: 0 0 10px var(--card-accent, #00F0FF);
+  }
+  50% {
+    transform: rotate(45deg) scale(1.1);
+    box-shadow: 0 0 24px var(--card-accent, #00F0FF), 0 0 40px var(--card-accent, #00F0FF);
+  }
+}
+
+@keyframes conduitPulse {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes terminalLedBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .tier-triple {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .tier-double {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .flowchart-hud-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .flowchart-banner-center {
+    width: 100%;
+    justify-content: space-around;
+  }
+  .flowchart-view-toggle {
+    width: 100%;
+  }
+  .view-toggle-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .tier-single, .tier-double, .tier-triple {
+    grid-template-columns: 1fr;
+  }
+  .flowchart-conduit-junction {
+    height: 48px;
+  }
+}
 
 /* ── Toast ────────────────────────────────────────────────── */
 .toast {
