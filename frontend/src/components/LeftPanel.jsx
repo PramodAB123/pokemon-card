@@ -28,7 +28,7 @@ export default function LeftPanel({ d }) {
       </div>
 
       <div className="sm-trainer-info">
-        <img className="sm-avatar" src={d.avatarUrl} alt={d.username} loading="lazy" />
+        <img className="sm-avatar" src={d.avatarUrl} alt={d.username} crossOrigin="anonymous" loading="lazy" />
         <div className="sm-trainer-text">
           <span className="sm-trainer-name">{d.displayName || d.username}</span>
           <span className="sm-trainer-handle">@{d.username} · {d.shipId}</span>

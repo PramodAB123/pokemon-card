@@ -6,7 +6,7 @@ import asyncio
 import hashlib
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from upstash_redis import Redis
@@ -440,6 +440,55 @@ async def get_card(user: str, refresh: bool = False):
             print(f"Counter incr (fresh) error: {e}")
 
     return card_data
+
+
+@app.get("/api/share/{username}", response_class=HTMLResponse)
+async def share_preview(username: str):
+    """
+    Server-side OpenGraph endpoint for LinkedIn, Twitter, and Reddit scrapers.
+    Returns rich OpenGraph meta tags so social platforms automatically attach
+    and display the full desktop telemetry image without manual file uploads.
+    """
+    clean_user = re.sub(r"[^a-zA-Z0-9_-]", "", username)[:39] or "explorer"
+    preview_img = "https://pokitrainer.vercel.app/og-preview.png"
+    target_url = f"https://pokitrainer.vercel.app/{clean_user}"
+    
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pilot {clean_user} | GitStar Explorer Dossier</title>
+    <meta name="description" content="Interstellar telemetry trading card and engineering dossier for {clean_user}.">
+    
+    <!-- OpenGraph Metadata for LinkedIn / Facebook / Slack / Reddit -->
+    <meta property="og:site_name" content="GitStar Explorer">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{target_url}">
+    <meta property="og:title" content="Pilot {clean_user} — Galactic Telemetry Dossier">
+    <meta property="og:description" content="Subspace Developer Telemetry: Warp Commits, Starbases, and Fleet Rank. Scan your GitHub coordinates!">
+    <meta property="og:image" content="{preview_img}">
+    <meta property="og:image:secure_url" content="{preview_img}">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@GitStarExplorer">
+    <meta name="twitter:title" content="Pilot {clean_user} — Galactic Telemetry Dossier">
+    <meta name="twitter:description" content="Subspace Developer Telemetry: Warp Commits, Starbases, and Fleet Rank. Scan your GitHub coordinates!">
+    <meta name="twitter:image" content="{preview_img}">
+    
+    <!-- Automatic instant redirect for human visitors -->
+    <meta http-equiv="refresh" content="0; url={target_url}">
+</head>
+<body style="background:#060814; color:#38bdf8; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh;">
+    <p>Transmitting to Subspace Telemetry... <a href="{target_url}" style="color:#fff;">Click here if not redirected</a></p>
+    <script>window.location.replace("{target_url}");</script>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)
+
 
 if __name__ == "__main__":
     import uvicorn

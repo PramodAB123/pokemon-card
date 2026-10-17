@@ -124,13 +124,18 @@ Your dominant programming language determines your primary **Star System**:
 ### 3D Parallax Tilt Effect
 When viewing your card on desktop, move your mouse over the trading card to trigger **3D interactive parallax tilt physics** with dynamic holographic light reflections!
 
-### Sharing Your Card
+### Sharing Your Card & Subspace Social Broadcasting
 Every explorer card has a direct shareable URL:
 ```text
 https://gitastro.vercel.app/YOUR_GITHUB_USERNAME
 ```
 * Click **Transmit Coordinates ✦** at the bottom of your card to copy your unique subspace link directly to your clipboard.
-* Share your link on social media, developer forums, or your GitHub profile README.
+* **Subspace Social Broadcast Relay (LinkedIn, Twitter / X, Reddit):**
+  - Click any of the dedicated social transmission buttons directly below the pilot card.
+  - Automatically captures the high-resolution **2x Retina desktop telemetry cockpit snapshot** (excluding buttons).
+  - Automatically copies the image to your system clipboard and triggers a background file download.
+  - Automatically opens the platform post composer with platform-tailored copywriting and developer hashtags.
+  - Complete architecture & copywriting guide: [FEATURE_POSTING_CONCEPT.md](file:///c:/Users/pramo/OneDrive/Desktop/pokemon-card/FEATURE_POSTING_CONCEPT.md).
 
 ---
 

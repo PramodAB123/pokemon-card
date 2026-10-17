@@ -123,7 +123,7 @@ export default function ExplorerCard({ d }) {
           {/* Avatar Lens Container (Single Clean Ring) */}
           <div className="exp-capsule-wrap">
             <div className="exp-avatar-lens">
-              <img className="exp-avatar" src={d.avatarUrl} alt={d.username} loading="lazy" />
+              <img className="exp-avatar" src={d.avatarUrl} alt={d.username} crossOrigin="anonymous" loading="lazy" />
               <div className="exp-lens-glare" />
             </div>
           </div>
