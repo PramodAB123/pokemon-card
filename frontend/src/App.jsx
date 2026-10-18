@@ -137,7 +137,7 @@ export default function App() {
       <div className="toast" id="toast">
         Subspace coordinates copied to clipboard!
       </div>
-      <Analytics />
+      {import.meta.env.PROD && <Analytics debug={false} />}
     </div>
   );
 }
