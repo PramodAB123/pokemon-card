@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LANG_COLORS, STAR_SYSTEMS } from "../lib/constants.js";
 import { fmt, timeAgo } from "../lib/utils.js";
 import { computeRepoLevel } from "../lib/computeCardData.js";
@@ -46,7 +46,22 @@ function getHexAddress(str, index) {
 }
 
 export default function ReposGrid({ d }) {
+  // Mobile detection: Mobile devices strictly display the Tactical Matrix
+  const [isMobile, setIsMobile] = useState(() => {
+    return typeof window !== "undefined" ? window.innerWidth <= 768 : false;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = (e) => setIsMobile(e.matches);
+    setIsMobile(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
   const [viewMode, setViewMode] = useState("flowchart"); // "flowchart" | "matrix"
+  const activeView = isMobile ? "matrix" : viewMode;
   const [hoveredNode, setHoveredNode] = useState(null);
 
   if (!d.topRepos || d.topRepos.length === 0) {
@@ -276,10 +291,16 @@ export default function ReposGrid({ d }) {
         <div className="flowchart-banner-left">
           <div className="banner-title-line">
             <span className="hud-status-blinker" />
-            <h3 className="flowchart-main-title">INTERSTELLAR STARBASE TOPOLOGY & DATA FLOWCHART</h3>
+            <h3 className="flowchart-main-title">
+              {isMobile
+                ? "INTERSTELLAR STARBASE TACTICAL MATRIX"
+                : "INTERSTELLAR STARBASE TOPOLOGY & DATA FLOWCHART"}
+            </h3>
           </div>
           <p className="flowchart-sub-telemetry">
-            QUANTUM REPOSITORY PIPELINE ARCHITECTURE // SUBSPACE DIRECTORY // FLEET PROTOCOL v4.8
+            {isMobile
+              ? "TACTICAL 6-SECTOR MATRIX ARRAY // SUBSPACE DIRECTORY"
+              : "QUANTUM REPOSITORY PIPELINE ARCHITECTURE // SUBSPACE DIRECTORY // FLEET PROTOCOL v4.8"}
           </p>
         </div>
 
@@ -306,31 +327,33 @@ export default function ReposGrid({ d }) {
           </div>
         </div>
 
-        {/* View Switcher: Interactive Flowchart vs Matrix Grid */}
-        <div className="flowchart-view-toggle">
-          <button
-            type="button"
-            className={`view-toggle-btn ${viewMode === "flowchart" ? "active" : ""}`}
-            onClick={() => setViewMode("flowchart")}
-            title="Display interconnected schematic pipeline flowchart"
-          >
-            <span className="toggle-icon">☵</span>
-            <span className="toggle-text">SCHEMATIC FLOW</span>
-          </button>
-          <button
-            type="button"
-            className={`view-toggle-btn ${viewMode === "matrix" ? "active" : ""}`}
-            onClick={() => setViewMode("matrix")}
-            title="Display tactical 6-sector matrix array"
-          >
-            <span className="toggle-icon">⊞</span>
-            <span className="toggle-text">TACTICAL MATRIX</span>
-          </button>
-        </div>
+        {/* View Switcher: Interactive Flowchart vs Matrix Grid (Desktop only) */}
+        {!isMobile && (
+          <div className="flowchart-view-toggle">
+            <button
+              type="button"
+              className={`view-toggle-btn ${activeView === "flowchart" ? "active" : ""}`}
+              onClick={() => setViewMode("flowchart")}
+              title="Display interconnected schematic pipeline flowchart"
+            >
+              <span className="toggle-icon">☵</span>
+              <span className="toggle-text">SCHEMATIC FLOW</span>
+            </button>
+            <button
+              type="button"
+              className={`view-toggle-btn ${activeView === "matrix" ? "active" : ""}`}
+              onClick={() => setViewMode("matrix")}
+              title="Display tactical 6-sector matrix array"
+            >
+              <span className="toggle-icon">⊞</span>
+              <span className="toggle-text">TACTICAL MATRIX</span>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* VIEW MODE 1: INTERACTIVE SCHEMATIC FLOWCHART */}
-      {viewMode === "flowchart" ? (
+      {/* VIEW MODE 1: INTERACTIVE SCHEMATIC FLOWCHART (Desktop) or VIEW MODE 2: TACTICAL MATRIX GRID */}
+      {activeView === "flowchart" ? (
         <div className="schematic-flowchart-canvas">
           {/* ════ STAGE 01: COMMAND HUB (FLAGSHIP INGRESS) ════ */}
           <div className="flowchart-stage stage-tier-1">
@@ -446,11 +469,15 @@ export default function ReposGrid({ d }) {
         </div>
       )}
 
-      {/* Schematic Flowchart Baseline Footer Telemetry */}
+      {/* Schematic Flowchart / Tactical Matrix Baseline Footer Telemetry */}
       <div className="flowchart-footer-telemetry">
         <div className="telemetry-line left">
           <span className="terminal-prompt">&gt;</span>
-          <span>STARBASE FLOWCHART PIPELINE STATUS: ALL CIRCUITS SYNCHRONIZED</span>
+          <span>
+            {isMobile
+              ? "STARBASE TACTICAL MATRIX STATUS: ALL SECTORS SYNCHRONIZED"
+              : "STARBASE FLOWCHART PIPELINE STATUS: ALL CIRCUITS SYNCHRONIZED"}
+          </span>
         </div>
         <div className="telemetry-line right">
           <span>COSMIC TELEMETRY PROTOCOL // ENCRYPTION: SHA-256</span>

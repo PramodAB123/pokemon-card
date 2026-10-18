@@ -246,8 +246,12 @@ body {
   font-size: 15px;
   font-weight: 500;
   padding: 6px 0;
+  text-overflow: ellipsis;
 }
-.scout-input::placeholder { color: rgba(148, 163, 184, 0.5); }
+.scout-input::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+  text-overflow: ellipsis;
+}
 .scout-btn {
    background: linear-gradient(135deg, #38BDF8, #2563EB);
    color: #ffffff;
@@ -2973,21 +2977,31 @@ body {
   }
 }
 
+@media (max-width: 768px) {
+  .flowchart-view-toggle {
+    display: none !important;
+  }
+  .schematic-flowchart-canvas {
+    display: none !important;
+  }
+  .tactical-matrix-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
 @media (max-width: 640px) {
   .flowchart-hud-banner {
     flex-direction: column;
     align-items: flex-start;
+    gap: 14px;
   }
   .flowchart-banner-center {
     width: 100%;
     justify-content: space-around;
   }
   .flowchart-view-toggle {
-    width: 100%;
-  }
-  .view-toggle-btn {
-    flex: 1;
-    justify-content: center;
+    display: none !important;
   }
   .tier-single, .tier-double, .tier-triple {
     grid-template-columns: 1fr;
@@ -3202,6 +3216,7 @@ body {
   }
   .scout-input {
     font-size: 14px;
+    text-overflow: ellipsis;
   }
   .scout-btn {
     padding: 9px 12px;

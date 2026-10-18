@@ -101,6 +101,20 @@ export default function SearchForm({ onSearch, initialError = "" }) {
 
   const [showHowToUse, setShowHowToUse] = useState(false);
 
+  // Responsive placeholder: "enter username" on mobile (<640px)
+  const [isMobile, setIsMobile] = useState(() => {
+    return typeof window !== "undefined" ? window.innerWidth <= 640 : false;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 640px)");
+    const handler = (e) => setIsMobile(e.matches);
+    setIsMobile(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
   // Close modal on Escape key
   useEffect(() => {
     if (!showHowToUse) return;
@@ -177,7 +191,7 @@ export default function SearchForm({ onSearch, initialError = "" }) {
               className="scout-input"
               id="githubInput"
               type="text"
-              placeholder="enter GitHub callsign or username..."
+              placeholder={isMobile ? "enter username" : "enter GitHub callsign or username..."}
               spellCheck="false"
               maxLength={39}
               aria-label="GitHub username"
