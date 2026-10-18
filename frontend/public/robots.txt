@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /preview-loader
+Disallow: /api/
+
+# Host & Sitemap
+Host: https://gitastro.vercel.app
+Sitemap: https://gitastro.vercel.app/sitemap.xml

@@ -1,6 +1,6 @@
-﻿// Automated API verification script based on README2.md
+// Automated API verification script based on README2.md
 // Usage: node test_api.mjs [target_url]
-// Example: node test_api.mjs https://pokitrainer.vercel.app
+// Example: node test_api.mjs https://gitastro.vercel.app
 
 const targetArg = process.argv[2];
 const base = (targetArg || "http://localhost:5173").replace(/\/+$/, "");
@@ -54,7 +54,7 @@ async function runTests() {
   const optRes = await fetch(`${base}/api/counter`, {
     method: "OPTIONS",
     headers: {
-      Origin: "https://pokitrainer.vercel.app",
+      Origin: "https://gitastro.vercel.app",
       "Access-Control-Request-Method": "POST",
     },
   });

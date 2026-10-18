@@ -450,8 +450,8 @@ async def share_preview(username: str):
     and display the full desktop telemetry image without manual file uploads.
     """
     clean_user = re.sub(r"[^a-zA-Z0-9_-]", "", username)[:39] or "explorer"
-    preview_img = "https://pokitrainer.vercel.app/og-preview.png"
-    target_url = f"https://pokitrainer.vercel.app/{clean_user}"
+    preview_img = "https://gitastro.vercel.app/og-preview.png"
+    target_url = f"https://gitastro.vercel.app/{clean_user}"
     
     html_content = f"""<!DOCTYPE html>
 <html lang="en">

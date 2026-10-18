@@ -1,7 +1,7 @@
 // tests/run_all.mjs - Master Test Runner for GitStar Explorer
 // Usage: node tests/run_all.mjs [target_url]
 // Example: node tests/run_all.mjs http://localhost:5173
-// Example: node tests/run_all.mjs https://pokitrainer.vercel.app
+// Example: node tests/run_all.mjs https://gitastro.vercel.app
 
 import { runApiCounterTests } from "./api_counter.test.mjs";
 import { runCorsSecurityTests } from "./cors_security.test.mjs";

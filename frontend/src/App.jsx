@@ -73,6 +73,33 @@ function UserCardPage() {
     };
   }, [username, navigate]);
 
+  useEffect(() => {
+    if (cardData) {
+      const displayName = cardData.name ? `${cardData.name} (@${cardData.username})` : cardData.username;
+      document.title = `${displayName} | Fleet Rank: ${cardData.cardRank} — GitStar Explorer`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute(
+          "content",
+          `Inspect ${cardData.username}'s interstellar GitHub trading card. Fleet Rank: ${cardData.cardRank}, Core System: ${cardData.topLanguage || "Polyglot"}, Explorer Telemetry & Missions.`
+        );
+      }
+    } else if (username) {
+      document.title = `Scanning ${username}... | GitStar Explorer`;
+    }
+
+    return () => {
+      document.title = "GitStar Explorer | Interstellar GitHub Trading Cards";
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute(
+          "content",
+          "Turn your GitHub profile into an interstellar explorer trading card! Missions, star systems, and fleet ranks."
+        );
+      }
+    };
+  }, [cardData, username]);
+
   function handleTryAnother() {
     navigate("/");
   }

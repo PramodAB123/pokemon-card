@@ -31,7 +31,7 @@ export function generatePostContent(platform, d, shareUrl) {
   const bio = d.bio ? d.bio.trim() : "";
 
   // Production public URL for social scrapers
-  const basePublicUrl = "https://pokitrainer.vercel.app";
+  const basePublicUrl = "https://gitastro.vercel.app";
   const publicShareUrl = shareUrl.includes("localhost")
     ? `${basePublicUrl}/${encodeURIComponent(username)}`
     : shareUrl;
