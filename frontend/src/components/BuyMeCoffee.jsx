@@ -1,4 +1,6 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
+import { trackEvent } from "../lib/analytics.js";
 
 const BMC_URL = "https://buymeacoffee.com/gitastro";
 
@@ -27,12 +29,16 @@ function CoffeeCupIcon({ className = "" }) {
 }
 
 export default function BuyMeCoffee() {
+  const { pathname } = useLocation();
+  const page = pathname === "/" ? "home" : "card";
+
   return (
     <a
       className="bmc-btn no-capture"
       href={BMC_URL}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackEvent("Coffee Clicked", { page })}
       aria-label="Support the developers on Buy Me a Coffee (opens in a new tab)"
     >
       <CoffeeCupIcon className="bmc-icon" />

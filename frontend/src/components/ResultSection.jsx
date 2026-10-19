@@ -10,6 +10,7 @@ import {
   generatePostContent,
   openPlatformComposer,
 } from "../lib/socialShare.js";
+import { trackEvent } from "../lib/analytics.js";
 
 // Phones and touch tablets get caption-only sharing (no desktop image download)
 const MOBILE_QUERY = "(max-width: 768px), (pointer: coarse)";
@@ -29,6 +30,7 @@ export default function ResultSection({ d, onTryAnother }) {
   }, []);
 
   function handleShareCoordinates() {
+    trackEvent("Share Clicked", { platform: "copy_link", device: isMobile ? "mobile" : "desktop" });
     const username = d.username;
     const url = `${location.origin}/${encodeURIComponent(username)}`;
     navigator.clipboard.writeText(url).then(
@@ -59,6 +61,7 @@ export default function ResultSection({ d, onTryAnother }) {
 
   // 1-Tap Action: Downloads Desktop Image + Prepares Formatted Caption + Launches Platform Composer
   async function handleSocialShare(platform) {
+    trackEvent("Share Clicked", { platform, device: isMobile ? "mobile" : "desktop" });
     if (isMobile) return handleMobileShare(platform);
     const username = d.username;
     const shareUrl = `${location.origin}/${encodeURIComponent(username)}`;
