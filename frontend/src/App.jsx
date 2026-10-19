@@ -6,6 +6,7 @@ import HeroSection from "./components/HeroSection.jsx";
 import LoadingSection from "./components/LoadingSection.jsx";
 import ResultSection from "./components/ResultSection.jsx";
 import NotFoundSection from "./components/NotFoundSection.jsx";
+import BuyMeCoffee from "./components/BuyMeCoffee.jsx";
 import { fetchGithubData } from "./lib/githubApi.js";
 import { computeCardData } from "./lib/computeCardData.js";
 import { incrementCounter } from "./lib/useCounter.js";
@@ -128,6 +129,7 @@ export default function App() {
   return (
     <div className="scene">
       <Background />
+      <BuyMeCoffee />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/preview-loader" element={<LoadingSection active={true} previewMode={true} />} />

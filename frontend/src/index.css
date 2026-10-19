@@ -3784,3 +3784,102 @@ body {
      font-size: clamp(36px, 8vw, 52px);
    }
  }
+
+/* ── Buy Me a Coffee: sticky bottom-right pill ───────────── */
+.bmc-btn {
+  --bmc-bg: rgba(15, 18, 38, 0.82);
+  --bmc-border: rgba(148, 163, 184, 0.22);
+  --bmc-text: #c7cde4;
+  --bmc-text-hover: #ffffff;
+  --bmc-icon: #FFDD00;
+  --bmc-glow: rgba(255, 221, 0, 0.28);
+
+  position: fixed;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  z-index: 50; /* below loader (100), modals and toast */
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 22px 0 18px;
+  background: var(--bmc-bg);
+  color: var(--bmc-text);
+  border: 1px solid var(--bmc-border);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  transition: color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.bmc-btn:hover,
+.bmc-btn:focus-visible {
+  color: var(--bmc-text-hover);
+  border-color: rgba(255, 221, 0, 0.55);
+  box-shadow: 0 0 0 4px rgba(255, 221, 0, 0.08), 0 0 26px var(--bmc-glow), 0 8px 28px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
+  outline: none;
+}
+.bmc-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--bmc-icon);
+  filter: drop-shadow(0 0 6px rgba(255, 221, 0, 0.35));
+}
+.bmc-steam {
+  animation: bmc-steam 2.4s ease-in-out infinite;
+}
+.bmc-steam:nth-child(2) { animation-delay: 0.3s; }
+.bmc-steam:nth-child(3) { animation-delay: 0.6s; }
+@keyframes bmc-steam {
+  0%, 100% { opacity: 0.35; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-1px); }
+}
+
+/* Light mode (follows the visitor's OS setting) */
+@media (prefers-color-scheme: light) {
+  .bmc-btn {
+    --bmc-bg: rgba(255, 255, 255, 0.92);
+    --bmc-border: rgba(15, 23, 42, 0.12);
+    --bmc-text: #334155;
+    --bmc-text-hover: #0f172a;
+    --bmc-icon: #E0A800;
+    --bmc-glow: rgba(255, 200, 0, 0.35);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  }
+  .bmc-btn:hover,
+  .bmc-btn:focus-visible {
+    box-shadow: 0 0 0 4px rgba(255, 221, 0, 0.18), 0 0 22px var(--bmc-glow), 0 8px 24px rgba(15, 23, 42, 0.2);
+  }
+}
+
+/* Mobile: smaller pill tucked into the corner */
+@media (max-width: 640px) {
+  .bmc-btn {
+    right: max(14px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+    height: 42px;
+    gap: 8px;
+    padding: 0 16px 0 13px;
+    font-size: 13px;
+  }
+  .bmc-icon { width: 18px; height: 18px; }
+}
+
+/* Very narrow phones: icon only */
+@media (max-width: 360px) {
+  .bmc-btn { width: 42px; padding: 0; justify-content: center; }
+  .bmc-text { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bmc-btn, .bmc-btn:hover { transition: none; transform: none; }
+  .bmc-steam { animation: none; }
+}
