@@ -2,16 +2,26 @@ import { STAR_SYSTEMS, VULNERABILITY_MAP, CLEARANCE_CONFIG, FLEET_RANKS } from "
 import { clamp, accountAge, generateShipId, getStreakLevel } from "./utils.js";
 
 // ── Level Calculation ───────────────────────────────────────
+// Logarithmic curve: level 1 at 0 commits, level 99 only at LEVEL_CAP_COMMITS.
+// Roughly: 100 → 14, 1k → 30, 10k → 47, 100k → 64, 1M → 82.
+export const MAX_LEVEL = 99;
+const LEVEL_SOFTNESS = 20;
+const LEVEL_CAP_COMMITS = 10_000_000;
+const LEVEL_SPAN = Math.log10(1 + LEVEL_CAP_COMMITS / LEVEL_SOFTNESS);
+
 export function levelThreshold(n) {
-  return n * n + 4;
+  if (n <= 1) return 0;
+  const lvl = Math.min(n, MAX_LEVEL);
+  return Math.ceil(LEVEL_SOFTNESS * (10 ** (((lvl - 1) / (MAX_LEVEL - 1)) * LEVEL_SPAN) - 1));
 }
 
 export function computeLevel(commits) {
-  if (!commits || commits < 5) return 1;
-  let n = 1;
-  while (n < 99 && levelThreshold(n + 1) <= commits) {
-    n++;
-  }
+  if (!commits || commits < 1) return 1;
+  let n = Math.floor(1 + ((MAX_LEVEL - 1) * Math.log10(1 + commits / LEVEL_SOFTNESS)) / LEVEL_SPAN);
+  n = Math.max(1, Math.min(MAX_LEVEL, n));
+  // Snap to the integer thresholds so level and progress bar always agree
+  while (n > 1 && levelThreshold(n) > commits) n--;
+  while (n < MAX_LEVEL && levelThreshold(n + 1) <= commits) n++;
   return n;
 }
 
@@ -24,8 +34,10 @@ export function computeRepoLevel(commits) {
 }
 
 // ── Mission Points (MP) ──────────────────────────────────────
+const COMMIT_MP = 10;
+
 export function computeMissionPoints({ commits, prs, stars, followers, forks, accountAgeYears }) {
-  const commitMP = (commits || 0) * 10;
+  const commitMP = (commits || 0) * COMMIT_MP;
   const prMP = (prs || 0) * 50;
   const starMP = (stars || 0) * 100;
   const socialMP = (followers || 0) * 5 + (forks || 0) * 10 + Math.round((accountAgeYears || 0) * 20);
@@ -33,11 +45,13 @@ export function computeMissionPoints({ commits, prs, stars, followers, forks, ac
 }
 
 // ── Shield Energy ───────────────────────────────────────────
+// Each component has its own ceiling and they sum to < 999, so the clamp is
+// only a safety net: 100 + 495 (level) + 120 (repos) + 100 (age) + 180 (stars).
 export function computeShieldEnergy({ level, publicRepos, accountAgeYears, totalStars }) {
-  const base = 50 + (level || 1) * 10;
-  const repo = Math.min(80, (publicRepos || 0) * 4);
-  const age = Math.min(60, Math.round((accountAgeYears || 0) * 8));
-  const stars = Math.min(60, Math.round(Math.log10((totalStars || 0) + 1) * 20));
+  const base = 100 + (level || 1) * 5;
+  const repo = Math.min(120, Math.round(Math.log10((publicRepos || 0) + 1) * 45));
+  const age = Math.min(100, Math.round((accountAgeYears || 0) * 7));
+  const stars = Math.min(180, Math.round(Math.log10((totalStars || 0) + 1) * 36));
   return clamp(base + repo + age + stars, 50, 999);
 }
 
@@ -118,16 +132,18 @@ export function computeCardData({ profile, repos = [], events = [], prCount = 0,
     accountAgeYears,
   });
 
-  // Level threshold calculation for MP progress bar
-  const curLevelL = levelThreshold(level);
-  const nextLevelL = levelThreshold(level + 1);
-  const curLvlBaseMP = curLevelL * 150;
-  const nextLvlTargetMP = Math.max(curLvlBaseMP + 1000, nextLevelL * 150);
-  const effectiveMP = Math.max(mp, curLvlBaseMP);
-  const mpProgress = Math.min(
-    100,
-    Math.max(5, Math.round(((effectiveMP - curLvlBaseMP) / (nextLvlTargetMP - curLvlBaseMP)) * 100))
-  );
+  // Reactor bar: progress through the current level's commit band. The MP
+  // target is current MP plus the MP the remaining commits would add, so it
+  // is always >= mp. At max level the bar is simply full.
+  let mpProgress = 100;
+  let nextLvlTargetMP = mp;
+  if (level < MAX_LEVEL) {
+    const curLevelC = levelThreshold(level);
+    const nextLevelC = levelThreshold(level + 1);
+    const frac = (totalCommits - curLevelC) / Math.max(1, nextLevelC - curLevelC);
+    mpProgress = clamp(Math.round(frac * 100), 5, 100);
+    nextLvlTargetMP = mp + Math.max(0, nextLevelC - totalCommits) * COMMIT_MP;
+  }
 
   // Star System & Vulnerability
   const starSystem = STAR_SYSTEMS[topLang] || STAR_SYSTEMS.default;
