@@ -3,8 +3,8 @@
 > **Transform your GitHub profile into an Interstellar Explorer Trading Card.**  
 > Powered by live GitHub telemetry, atomic Redis tracking, and dynamic 3D holographic card rendering.
 
-[![Live Web Application](https://img.shields.io/badge/Live-App-brightgreen?style=for-the-badge&logo=vercel)](https://pokitrainer.vercel.app)
-[![Status](https://img.shields.io/badge/Status-Subspace_Online-38BDF8?style=for-the-badge)](https://pokitrainer.vercel.app)
+[![Live Web Application](https://img.shields.io/badge/Live-App-brightgreen?style=for-the-badge&logo=vercel)](https://gitastro.vercel.app/)
+[![Status](https://img.shields.io/badge/Status-Subspace_Online-38BDF8?style=for-the-badge)](https://gitastro.vercel.app/)
 
 ---
 
@@ -31,7 +31,7 @@
 ## 2. How to Generate Your Card
 
 1. **Visit the Live Application**:  
-   Open [https://pokitrainer.vercel.app](https://pokitrainer.vercel.app) in your web browser.
+   Open [https://gitastro.vercel.app](https://gitastro.vercel.app) in your web browser.
 2. **Enter Your Callsign**:  
    Type any valid GitHub username (e.g., `torvalds`, `sindresorhus`, `gaearon`, or your own username). Leading `@` symbols and extra whitespace are automatically sanitized.
 3. **Execute Warp Jump**:  
