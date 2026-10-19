@@ -15,7 +15,7 @@ function getTopLanguagesText(langPercents = []) {
 /**
  * Generate platform-tailored post descriptions
  */
-export function generatePostContent(platform, d, shareUrl) {
+export function generatePostContent(platform, d, shareUrl, { withImage = true } = {}) {
   const username = d.username || "explorer";
   const displayName = d.displayName && d.displayName !== username ? d.displayName : username;
   const rankTitle = d.fleetRank?.title || "Fleet Explorer";
@@ -102,7 +102,7 @@ Here is my developer fleet telemetry report:
 * **Shield Energy:** ${shield} / 999
 * **Primary Tech Stack:** ${topLangs}
 
-*(Desktop telemetry snapshot attached!)*
+${withImage ? "*(Desktop telemetry snapshot attached!)*" : ""}
 
 Check out your own GitHub galactic card & telemetry coordinates:
 ${publicShareUrl}`,

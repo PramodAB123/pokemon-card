@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ExplorerCard from "./ExplorerCard.jsx";
 import LeftPanel from "./LeftPanel.jsx";
 import RightPanel from "./RightPanel.jsx";
@@ -11,11 +11,22 @@ import {
   openPlatformComposer,
 } from "../lib/socialShare.js";
 
+// Phones and touch tablets get caption-only sharing (no desktop image download)
+const MOBILE_QUERY = "(max-width: 768px), (pointer: coarse)";
+
 export default function ResultSection({ d, onTryAnother }) {
   const cardWrapRef = useRef(null);
   const layoutRef = useRef(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [activePlatform, setActivePlatform] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia(MOBILE_QUERY).matches);
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   function handleShareCoordinates() {
     const username = d.username;
@@ -34,8 +45,21 @@ export default function ResultSection({ d, onTryAnother }) {
     setTimeout(() => toast.classList.remove("show"), 3500);
   }
 
+  // Mobile: caption only. Opens the composer synchronously so the tap still
+  // counts as a user gesture (no popup blocking, clipboard allowed).
+  function handleMobileShare(platform) {
+    const shareUrl = `${location.origin}/${encodeURIComponent(d.username)}`;
+    const postContent = generatePostContent(platform, d, shareUrl, { withImage: false });
+    if (postContent?.text) {
+      navigator.clipboard?.writeText(postContent.text).catch(() => {});
+    }
+    openPlatformComposer(platform, postContent);
+    showToast(`✓ Caption copied & ${postContent.platform} opened!`);
+  }
+
   // 1-Tap Action: Downloads Desktop Image + Prepares Formatted Caption + Launches Platform Composer
   async function handleSocialShare(platform) {
+    if (isMobile) return handleMobileShare(platform);
     const username = d.username;
     const shareUrl = `${location.origin}/${encodeURIComponent(username)}`;
     setIsCapturing(true);
@@ -110,7 +134,7 @@ export default function ResultSection({ d, onTryAnother }) {
             </button>
           </div>
 
-          {/* Subspace Broadcast Deck: Tapping ANY button downloads image & opens platform (Excluded from desktop screenshot) */}
+          {/* Subspace Broadcast Deck: Tapping a button opens the platform (desktop also downloads the image) (Excluded from desktop screenshot) */}
           <div className="social-broadcast-deck no-capture" id="socialBroadcastDeck">
             <div className="social-broadcast-header">
               <span className="pulse-signal" />
@@ -123,7 +147,7 @@ export default function ResultSection({ d, onTryAnother }) {
                 id="shareLinkedInBtn"
                 onClick={() => handleSocialShare("linkedin")}
                 disabled={isCapturing}
-                title="Download desktop image & open LinkedIn"
+                title={isMobile ? "Copy caption & open LinkedIn" : "Download desktop image & open LinkedIn"}
               >
                 <LinkedInIcon className="social-btn-icon" />
                 <span className="social-btn-text">
@@ -136,7 +160,7 @@ export default function ResultSection({ d, onTryAnother }) {
                 id="shareTwitterBtn"
                 onClick={() => handleSocialShare("twitter")}
                 disabled={isCapturing}
-                title="Download desktop image & tweet to X"
+                title={isMobile ? "Copy caption & open X" : "Download desktop image & tweet to X"}
               >
                 <TwitterIcon className="social-btn-icon" />
                 <span className="social-btn-text">
@@ -149,7 +173,7 @@ export default function ResultSection({ d, onTryAnother }) {
                 id="shareRedditBtn"
                 onClick={() => handleSocialShare("reddit")}
                 disabled={isCapturing}
-                title="Download desktop image & post to Reddit"
+                title={isMobile ? "Copy caption & open Reddit" : "Download desktop image & post to Reddit"}
               >
                 <RedditIcon className="social-btn-icon" />
                 <span className="social-btn-text">
