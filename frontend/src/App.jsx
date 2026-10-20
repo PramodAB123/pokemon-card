@@ -103,12 +103,12 @@ function UserCardPage() {
 
     return () => {
       resetSeo();
-      document.title = "GitStar Explorer | Interstellar GitHub Trading Cards";
+      document.title = "GitHub Profile Card Generator – Free Trading Card | GitStar Explorer";
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute(
           "content",
-          "Turn your GitHub profile into an interstellar explorer trading card! Missions, star systems, and fleet ranks."
+          "Free GitHub profile card generator. Enter any username to turn GitHub stats – commits, repos, stars and languages – into a shareable trading card. No sign-up."
         );
       }
     };

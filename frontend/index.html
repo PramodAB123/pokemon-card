@@ -4,33 +4,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GitStar Explorer | Interstellar GitHub Trading Cards</title>
+  <title>GitHub Profile Card Generator – Free Trading Card | GitStar Explorer</title>
   <meta name="description"
-    content="Turn your GitHub profile into an interstellar explorer trading card! Missions, star systems, and fleet ranks." />
+    content="Free GitHub profile card generator. Enter any username to turn GitHub stats – commits, repos, stars and languages – into a shareable trading card. No sign-up." />
 
   <!-- OpenGraph Metadata for LinkedIn, Facebook, Slack, Discord -->
   <meta property="og:site_name" content="GitStar Explorer" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="GitStar Explorer | Interstellar GitHub Trading Cards" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="Turn your GitHub profile into a trading card – GitStar Explorer" />
   <meta property="og:description"
-    content="Turn your GitHub profile into an interstellar explorer trading card! Telemetry, star systems, and fleet ranks." />
+    content="Enter any GitHub username and get a free collectible card: level, fleet rank and star system from your commits, repos, stars and languages." />
   <meta property="og:image" content="https://gitastro.vercel.app/og-preview.png" />
   <meta property="og:image:secure_url" content="https://gitastro.vercel.app/og-preview.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:url" content="https://gitastro.vercel.app" />
+  <meta property="og:image:alt" content="A GitStar Explorer trading card generated from a GitHub profile" />
+  <meta property="og:url" content="https://gitastro.vercel.app/" />
 
   <!-- Twitter Card Metadata -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@GitStarExplorer" />
-  <meta name="twitter:title" content="GitStar Explorer | Interstellar GitHub Trading Cards" />
+  <meta name="twitter:title" content="Turn your GitHub profile into a trading card – GitStar Explorer" />
   <meta name="twitter:description"
-    content="Turn your GitHub profile into an interstellar explorer trading card! Telemetry, star systems, and fleet ranks." />
+    content="Enter any GitHub username and get a free collectible card: level, fleet rank and star system from your commits, repos, stars and languages." />
   <meta name="twitter:image" content="https://gitastro.vercel.app/og-preview.png" />
+  <meta name="twitter:image:alt" content="A GitStar Explorer trading card generated from a GitHub profile" />
 
   <link rel="icon" type="image/png" href="/image.png" />
   <link rel="apple-touch-icon" href="/image.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -39,7 +43,8 @@
   <link rel="canonical" href="https://gitastro.vercel.app/" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <meta name="keywords" content="GitHub trading card, GitHub card generator, GitHub stats card, developer portfolio card, interstellar GitHub card, GitStar Explorer, code stats visualizer" />
+  <meta name="keywords" content="GitHub profile card, GitHub card generator, GitHub stats card, GitHub trading card, GitHub profile stats, developer card, GitHub wrapped, GitStar Explorer" />
+  <meta name="application-name" content="GitStar Explorer" />
   <meta name="author" content="GitStar Explorer" />
   <meta name="theme-color" content="#030712" />
   <meta name="google-site-verification" content="tFEZxzOKtObmO1F2QplXMv6gd3qVIaQmcE1tFmRKH8A" />
@@ -48,30 +53,82 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "GitStar Explorer",
-    "url": "https://gitastro.vercel.app/",
-    "description": "Turn your GitHub profile into an interstellar explorer trading card! Missions, star systems, and fleet ranks.",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "All",
-    "browserRequirements": "Requires JavaScript. Requires HTML5.",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "featureList": [
-      "Interstellar GitHub developer trading cards",
-      "Fleet rank and star system computation",
-      "1-tap social share to LinkedIn, Twitter/X, and Reddit",
-      "Holofoil card visualizer with real-time GitHub telemetry"
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://gitastro.vercel.app/#website",
+        "name": "GitStar Explorer",
+        "alternateName": "GitAstro",
+        "url": "https://gitastro.vercel.app/",
+        "inLanguage": "en"
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://gitastro.vercel.app/#app",
+        "name": "GitStar Explorer",
+        "url": "https://gitastro.vercel.app/",
+        "description": "Free GitHub profile card generator that turns public GitHub stats into a shareable trading card.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript.",
+        "image": "https://gitastro.vercel.app/og-preview.png",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "GitHub profile trading card from any public username",
+          "Level and fleet rank based on total commits",
+          "Star system based on your top programming language",
+          "Shield energy from repositories, stars and account age",
+          "One-click sharing to LinkedIn, X and Reddit"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Is GitStar Explorer free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free and needs no sign-up." } },
+          { "@type": "Question", "name": "What GitHub data does it use?", "acceptedAnswer": { "@type": "Answer", "text": "Only public GitHub data: your profile, public repositories, stars, languages and commit activity. No sign-in or access token is needed." } },
+          { "@type": "Question", "name": "How is my level calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Your level grows with your total commits on a curve from 1 to 99, and your level sets your fleet rank: Cadet, Lieutenant, Commander, Admiral or Fleet Admiral." } },
+          { "@type": "Question", "name": "Can I share my card?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every card has its own link, and the share buttons copy a ready-made caption and open LinkedIn, X or Reddit." } }
+        ]
+      }
     ]
   }
   </script>
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Crawlable content for search engines and no-JS visitors; React replaces it on load -->
+    <main class="seo-fallback" style="max-width:720px;margin:0 auto;padding:48px 20px;color:#cbd5e1;background:#050816;font-family:Inter,system-ui,sans-serif;line-height:1.6">
+      <h1 style="color:#fff">GitStar Explorer: turn your GitHub profile into a trading card</h1>
+      <p>Enter any GitHub username and get a free, shareable trading card built from public GitHub stats. Your commits set your level and fleet rank, your top language picks your star system, and your repositories, stars and account age power your shield.</p>
+      <h2 style="color:#fff">How it works</h2>
+      <ol>
+        <li>Type a GitHub username. No sign-up or GitHub login needed.</li>
+        <li>GitStar Explorer reads public data: commits, repositories, stars and languages.</li>
+        <li>Your card is ready in seconds, with its own link to share on LinkedIn, X or Reddit.</li>
+      </ol>
+      <h2 style="color:#fff">Example GitHub cards</h2>
+      <ul>
+        <li><a href="/torvalds" style="color:#38bdf8">torvalds</a></li>
+        <li><a href="/gaearon" style="color:#38bdf8">gaearon</a></li>
+        <li><a href="/yyx990803" style="color:#38bdf8">yyx990803</a></li>
+        <li><a href="/sindresorhus" style="color:#38bdf8">sindresorhus</a></li>
+        <li><a href="/antfu" style="color:#38bdf8">antfu</a></li>
+        <li><a href="/shadcn" style="color:#38bdf8">shadcn</a></li>
+      </ul>
+      <h2 style="color:#fff">Frequently asked questions</h2>
+      <h3 style="color:#e2e8f0">Is GitStar Explorer free?</h3>
+      <p>Yes. It is free and needs no sign-up.</p>
+      <h3 style="color:#e2e8f0">What GitHub data does it use?</h3>
+      <p>Only public GitHub data: your profile, public repositories, stars, languages and commit activity. No sign-in or access token is needed.</p>
+      <h3 style="color:#e2e8f0">How is my level calculated?</h3>
+      <p>Your level grows with your total commits on a curve from 1 to 99, and your level sets your fleet rank: Cadet, Lieutenant, Commander, Admiral or Fleet Admiral.</p>
+      <h3 style="color:#e2e8f0">Can I share my card?</h3>
+      <p>Yes. Every card has its own link, and the share buttons copy a ready-made caption and open LinkedIn, X or Reddit.</p>
+      <noscript><p><strong>Please enable JavaScript to generate your card.</strong></p></noscript>
+    </main>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

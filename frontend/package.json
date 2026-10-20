@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "test": "node ../tests/run_all.mjs",
     "test:prod": "node ../tests/run_all.mjs https://gitastro.vercel.app",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@radix-ui/react-progress": "^1.1.16",

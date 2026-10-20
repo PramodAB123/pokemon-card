@@ -5,5 +5,4 @@ Disallow: /preview-loader
 Disallow: /api/
 
 # Host & Sitemap
-Host: https://gitastro.vercel.app
 Sitemap: https://gitastro.vercel.app/sitemap.xml

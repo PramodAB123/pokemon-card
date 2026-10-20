@@ -1,0 +1,10 @@
+{
+  "name": "GitStar Explorer – GitHub Trading Cards",
+  "short_name": "GitStar",
+  "description": "Turn any GitHub profile into a shareable trading card.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050816",
+  "theme_color": "#030712",
+  "icons": [{ "src": "/image.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }]
+}
