@@ -11,6 +11,7 @@ import { fetchGithubData } from "./lib/githubApi.js";
 import { computeCardData } from "./lib/computeCardData.js";
 import { incrementCounter } from "./lib/useCounter.js";
 import { trackEvent } from "./lib/analytics.js";
+import { setCanonical, setIndexable, resetSeo } from "./lib/seo.js";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -86,6 +87,8 @@ function UserCardPage() {
       const rank = cardData.fleetRank?.title || "Cadet";
       const coreLang = cardData.topLang && cardData.topLang !== "default" ? cardData.topLang : "Polyglot";
       document.title = `${displayName} | Fleet Rank: ${rank} — GitStar Explorer`;
+      setCanonical(`/${encodeURIComponent(cardData.username)}`);
+      setIndexable(true);
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute(
@@ -95,9 +98,11 @@ function UserCardPage() {
       }
     } else if (username) {
       document.title = `Scanning ${username}... | GitStar Explorer`;
+      setCanonical(`/${encodeURIComponent(username)}`);
     }
 
     return () => {
+      resetSeo();
       document.title = "GitStar Explorer | Interstellar GitHub Trading Cards";
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
@@ -118,6 +123,8 @@ function UserCardPage() {
   }
 
   if (view === "not-found") {
+    setIndexable(false); // missing GitHub user: keep out of search results
+    document.title = `Explorer not found | GitStar Explorer`;
     return <NotFoundSection username={username} onTryAnother={handleTryAnother} />;
   }
 
@@ -130,6 +137,10 @@ function UserCardPage() {
 
 function GenericNotFoundPage() {
   const navigate = useNavigate();
+  useEffect(() => {
+    setIndexable(false);
+    return resetSeo;
+  }, []);
   return <NotFoundSection onTryAnother={() => navigate("/")} />;
 }
 
