@@ -1,4 +1,3 @@
-import { toBlob } from "html-to-image";
 import { fmt } from "./utils.js";
 
 /**
@@ -15,7 +14,7 @@ function getTopLanguagesText(langPercents = []) {
 /**
  * Generate platform-tailored post descriptions
  */
-export function generatePostContent(platform, d, shareUrl, { withImage = true } = {}) {
+export function generatePostContent(platform, d, shareUrl) {
   const username = d.username || "explorer";
   const displayName = d.displayName && d.displayName !== username ? d.displayName : username;
   const rankTitle = d.fleetRank?.title || "Fleet Explorer";
@@ -102,8 +101,6 @@ Here is my developer fleet telemetry report:
 * **Shield Energy:** ${shield} / 999
 * **Primary Tech Stack:** ${topLangs}
 
-${withImage ? "*(Desktop telemetry snapshot attached!)*" : ""}
-
 Check out your own GitHub galactic card & telemetry coordinates:
 ${publicShareUrl}`,
         shareUrl: publicShareUrl,
@@ -117,128 +114,6 @@ ${publicShareUrl}`,
         shareUrl: publicShareUrl,
       };
   }
-}
-
-/**
- * Capture high-resolution studio-grade desktop cockpit telemetry image
- */
-export async function captureDesktopScreenshot(element, d = {}) {
-  // 1. Ensure fonts are fully loaded to avoid fallback metrics
-  if (document.fonts && document.fonts.ready) {
-    try {
-      await document.fonts.ready;
-    } catch (e) {}
-  }
-
-  const username = d?.username || "EXPLORER";
-  const displayName = d?.displayName || username;
-  const rankTitle = d?.fleetRank?.title || "FLEET ADMIRAL";
-  const rankBadge = d?.fleetRank?.badge || "★★";
-  const system = d?.starSystem?.name || "SOLARIS";
-  const level = d?.level || 99;
-
-  // 2. Build the Studio Desktop Stage for balanced, wallpaper-quality composition
-  const stage = document.createElement("div");
-  stage.className = "telemetry-capture-stage";
-
-  stage.innerHTML = `
-    <div class="capture-hud-header">
-      <div class="capture-hud-title">
-        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; box-shadow:0 0 10px #38bdf8;"></span>
-        FLEET COMMAND // SUBSPACE TELEMETRY DOSSIER
-      </div>
-      <div class="capture-hud-meta">
-        STAR SYSTEM: ${system.toUpperCase()} (LVL ${level}) · CLEARANCE: VERIFIED
-      </div>
-    </div>
-    <div class="capture-grid-row">
-      <div class="capture-col left"></div>
-      <div class="capture-col center"></div>
-      <div class="capture-col right"></div>
-    </div>
-    <div class="capture-hud-footer">
-      <span>PILOT: ${username.toUpperCase()} (${displayName}) · ${rankTitle.toUpperCase()} ${rankBadge}</span>
-      <span>GITSTAR EXPLORER · SECTOR ALPHA · TELEMETRY VERIFIED ✦</span>
-    </div>
-  `;
-
-  stage.style.position = "fixed";
-  stage.style.left = "0px";
-  stage.style.top = "0px";
-  stage.style.width = "1220px";
-  stage.style.zIndex = "99999";
-  stage.style.pointerEvents = "none";
-
-  const leftCol = stage.querySelector(".capture-col.left");
-  const centerCol = stage.querySelector(".capture-col.center");
-  const rightCol = stage.querySelector(".capture-col.right");
-
-  const leftPanel = (document.getElementById("leftPanel") || element?.querySelector("#leftPanel"))?.cloneNode(true);
-  const cardNode = (document.getElementById("generatedCard") || element?.querySelector(".explorer-card"))?.cloneNode(true);
-  const rightPanel = (document.getElementById("rightPanel") || element?.querySelector("#rightPanel"))?.cloneNode(true);
-
-  if (leftPanel && cardNode && rightPanel) {
-    // Reset any interactive 3D rotation on card for perfectly flat rendering
-    cardNode.style.transform = "none";
-    cardNode.style.setProperty("--mouse-x", "50%");
-    cardNode.style.setProperty("--mouse-y", "50%");
-
-    leftCol.appendChild(leftPanel);
-    centerCol.appendChild(cardNode);
-    rightCol.appendChild(rightPanel);
-
-    document.body.appendChild(stage);
-
-    try {
-      // Allow browser to perform full layout & paint before capturing
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-      const blob = await toBlob(stage, {
-        width: 1220,
-        height: stage.offsetHeight || 740,
-        quality: 0.98,
-        pixelRatio: 2, // 2x Retina resolution for razor-sharp clarity
-        backgroundColor: "#060814",
-        cacheBust: false,
-      });
-
-      if (document.body.contains(stage)) {
-        document.body.removeChild(stage);
-      }
-
-      if (blob && blob.size > 25000) {
-        return { blob };
-      }
-      console.warn("Stage blob was empty or too small, falling back to direct capture");
-    } catch (err) {
-      console.warn("Studio stage capture failed, falling back to direct element capture:", err);
-      if (document.body.contains(stage)) {
-        document.body.removeChild(stage);
-      }
-    }
-  }
-
-  // Fallback: Direct element capture with typography fixes
-  const filter = (node) => {
-    if (node.classList && (
-      node.classList.contains("no-capture") ||
-      node.classList.contains("card-actions") ||
-      node.classList.contains("social-broadcast-deck") ||
-      node.classList.contains("toast")
-    )) {
-      return false;
-    }
-    return true;
-  };
-
-  const blob = await toBlob(element, {
-    quality: 0.95,
-    pixelRatio: 2,
-    backgroundColor: "#060814",
-    filter,
-    cacheBust: false,
-  });
-  return { blob };
 }
 
 /**
